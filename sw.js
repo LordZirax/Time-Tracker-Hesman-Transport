@@ -1,8 +1,9 @@
-const CACHE_NAME = 'mishoras-v1';
+const CACHE_NAME = 'mishoras-v2';
+const BASE = '/Time-Tracker-Hesman-Transport/';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  BASE,
+  BASE + 'index.html',
+  BASE + 'manifest.json',
   'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap'
 ];
 
@@ -35,3 +36,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
