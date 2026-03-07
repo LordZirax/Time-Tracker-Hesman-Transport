@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Mis Horas</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --green: #00ff88;
+  --red: #ff6b6b;
+  --blue: #6bb8ff;
+  --cyan: #00c8ff;
+  --yellow: #ffc800;
+  --font: 'JetBrains Mono', 'SF Mono', monospace;
+  --font-display: 'Space Grotesk', sans-serif;
+  --w05: rgba(255,255,255,0.05);
+  --w08: rgba(255,255,255,0.08);
+  --w12: rgba(255,255,255,0.12);
+  --w20: rgba(255,255,255,0.2);
+  --w30: rgba(255,255,255,0.3);
+  --w35: rgba(255,255,255,0.35);
+  --w40: rgba(255,255,255,0.4);
+  --w50: rgba(255,255,255,0.5);
+  --w70: rgba(255,255,255,0.7);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: #e0e0e0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 540px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+  transition: background 0.8s ease;
+  overscroll-behavior: none;
+}
+body.clocked-in { background: linear-gradient(160deg, #0a1a0a 0%, #0d0d14 40%, #0a0a0f 100%); }
+body.clocked-out { background: linear-gradient(160deg, #0a0a0f 0%, #0d0d14 40%, #0f0a0a 100%); }
+
+input, button { font-family: var(--font); outline: none; }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+::placeholder { color: var(--w20); }
+
+.input-base {
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--w12);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  width: 100%;
+}
+.time-input {
+  width: 40px;
+  text-align: center;
+  padding: 6px 4px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--w12);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+}
+.date-input {
+  width: 130px;
+  font-size: 11px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--w12);
+  border-radius: 6px;
+  color: #fff;
+}
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+.btn-icon:active { opacity: 0.5; }
+
+.header { padding: 24px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: space-between; }
+.header h1 { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+.header-sub { font-size: 11px; color: var(--w30); margin-top: 2px; letter-spacing: 1px; }
+.live-badge { display: none; align-items: center; gap: 6px; }
+.live-badge.active { display: flex; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: liveDot 1.2s infinite; }
+.live-label { font-size: 11px; color: var(--green); font-weight: 600; }
+
+.service-area { padding: 20px 20px 0; }
+.service-area .input-base { font-size: 14px; font-weight: 500; }
+.service-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.chip {
+  padding: 3px 8px;
+  background: var(--w05);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 5px;
+  color: var(--w35);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip.selected { background: rgba(0,255,136,0.12); border-color: rgba(0,255,136,0.3); color: var(--green); }
+.notes-input { margin-top: 10px; font-size: 12px; }
+
+/* Clock Button */
+.clock-area { padding: 28px 20px; display: flex; flex-direction: column; align-items: center; }
+.clock-btn {
+  width: 190px; height: 190px; border-radius: 50%;
+  cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  transition: all 0.3s ease;
+  font-family: var(--font);
+}
+.clock-btn.out {
+  border: 3px solid rgba(255,70,70,0.6);
+  background: radial-gradient(circle at 40% 40%, rgba(255,70,70,0.12), rgba(255,70,70,0.02));
+  color: var(--red);
+}
+.clock-btn.in {
+  border: 3px solid var(--green);
+  background: radial-gradient(circle at 40% 40%, rgba(0,255,136,0.15), rgba(0,255,136,0.03));
+  color: var(--green);
+  animation: clockPulse 2.5s infinite;
+}
+.clock-btn:active { transform: scale(0.96); }
+.clock-label { font-size: 13px; font-weight: 600; letter-spacing: 2px; opacity: 0.8; }
+.clock-time { font-family: var(--font-display); font-weight: 700; }
+.clock-since { font-size: 10px; opacity: 0.5; }
+.clock-rounded { font-size: 10px; opacity: 0.35; margin-top: 2px; }
+.clock-service-label { margin-top: 10px; font-size: 12px; color: rgba(0,255,136,0.5); font-weight: 500; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; padding: 0 20px; margin-bottom: 20px; }
+.tab {
+  flex: 1; padding: 10px 0; border-radius: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  cursor: pointer; transition: all 0.2s; text-align: center; border: 1px solid rgba(255,255,255,0.04);
+  background: transparent; color: var(--w35);
+}
+.tab.active { background: var(--w08); border-color: var(--w12); color: #fff; }
+
+/* Summary */
+.summary { margin: 0 20px 20px; padding: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; display: flex; justify-content: space-between; align-items: flex-end; }
+.summary-label { font-size: 10px; color: var(--w30); letter-spacing: 1px; margin-bottom: 6px; }
+.summary-total { font-family: var(--font-display); font-size: 34px; font-weight: 700; color: #fff; letter-spacing: -1px; }
+.summary-decimal-label { font-size: 10px; color: var(--w30); letter-spacing: 1px; margin-bottom: 4px; }
+.summary-decimal { font-size: 20px; font-weight: 500; color: rgba(255,255,255,0.6); }
+
+/* Export */
+.export-toggle {
+  width: 100%; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 500;
+  cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s; text-align: center;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: var(--w40);
+}
+.export-toggle.open { background: rgba(0,136,255,0.08); border-color: rgba(0,136,255,0.2); color: var(--blue); }
+.export-panel {
+  margin: 0 20px 20px; padding: 18px; background: rgba(0,136,255,0.04); border: 1px solid rgba(0,136,255,0.12);
+  border-radius: 14px; animation: slideIn 0.2s ease; display: none;
+}
+.export-panel.open { display: block; }
+.export-panel-title { font-size: 11px; color: var(--w40); letter-spacing: 1px; margin-bottom: 14px; font-weight: 600; }
+.quick-btns { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; }
+.quick-btn {
+  padding: 6px 10px; background: var(--w05); border: 1px solid var(--w08); border-radius: 6px;
+  color: var(--w50); font-size: 10px; cursor: pointer; transition: all 0.15s;
+}
+.quick-btn:active { opacity: 0.6; }
+.date-range { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; }
+.date-range > div { flex: 1; }
+.date-range label { font-size: 10px; color: var(--w30); display: block; margin-bottom: 4px; }
+.date-range .arrow { color: rgba(255,255,255,0.15); padding-top: 16px; }
+.export-go {
+  width: 100%; padding: 12px; background: rgba(0,136,255,0.15); border: 1px solid rgba(0,136,255,0.3);
+  border-radius: 10px; color: var(--blue); font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;
+}
+.export-note { font-size: 10px; color: var(--w20); margin-top: 8px; text-align: center; }
+
+/* Day group */
+.entries { padding: 0 20px; }
+.day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.day-date { font-size: 12px; font-weight: 600; color: var(--w50); text-transform: uppercase; }
+.day-total { font-size: 13px; font-weight: 600; color: #fff; }
+.day-total-dec { font-size: 11px; color: var(--w35); font-weight: 400; }
+.day-group { margin-bottom: 20px; animation: slideIn 0.3s ease both; }
+
+/* Entry row */
+.entry {
+  padding: 12px 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 10px; margin-bottom: 6px;
+}
+.entry-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+.entry-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.entry-right { display: flex; align-items: center; gap: 8px; }
+.entry-time { font-size: 13px; color: var(--w70); }
+.entry-hours { font-size: 14px; font-weight: 600; color: #fff; }
+.entry-dec { font-size: 11px; color: var(--w30); }
+.entry-note { margin-top: 6px; font-size: 11px; color: var(--w30); font-style: italic; padding-left: 2px; line-height: 1.4; }
+.midnight-badge { font-size: 9px; color: rgba(255,200,0,0.5); margin-left: 4px; }
+
+.badge {
+  font-size: 9px; padding: 2px 5px; border-radius: 4px; display: inline-block;
+}
+.badge-service { background: rgba(0,200,255,0.08); border: 1px solid rgba(0,200,255,0.15); color: rgba(0,200,255,0.7); font-size: 11px; padding: 2px 7px; border-radius: 5px; font-weight: 500; }
+.badge-edited { background: rgba(255,200,0,0.08); border: 1px solid rgba(255,200,0,0.2); color: rgba(255,200,0,0.6); }
+.badge-manual { background: rgba(0,200,255,0.08); border: 1px solid rgba(0,200,255,0.2); color: rgba(0,200,255,0.6); }
+.badge-under15 { background: rgba(255,70,70,0.08); border: 1px solid rgba(255,70,70,0.2); color: rgba(255,70,70,0.6); }
+
+/* Edit form */
+.edit-form { display: flex; flex-direction: column; gap: 10px; }
+.edit-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.edit-section-label { font-size: 9px; color: rgba(255,255,255,0.25); margin-bottom: 3px; }
+.edit-time-group { display: flex; align-items: center; gap: 4px; }
+.edit-colon { color: var(--w20); }
+.edit-btns { display: flex; gap: 6px; }
+.edit-save {
+  padding: 6px 14px; background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.25);
+  border-radius: 6px; color: var(--green); font-size: 11px; cursor: pointer;
+}
+.edit-cancel {
+  padding: 6px 14px; background: var(--w05); border: 1px solid var(--w08);
+  border-radius: 6px; color: var(--w35); font-size: 11px; cursor: pointer;
+}
+
+/* Manual entry */
+.manual-toggle {
+  width: 100%; padding: 14px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 12px; color: var(--w30); font-size: 12px; cursor: pointer; letter-spacing: 0.5px; text-align: center;
+}
+.manual-form {
+  padding: 18px; background: rgba(255,255,255,0.03); border: 1px solid var(--w08); border-radius: 14px;
+}
+.manual-title { font-size: 11px; color: var(--w40); letter-spacing: 1px; margin-bottom: 14px; font-weight: 600; }
+.manual-dates { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+.manual-dates .arrow { color: rgba(255,255,255,0.12); padding-top: 16px; font-size: 14px; }
+.manual-date-label { font-size: 10px; color: var(--w30); margin-bottom: 4px; }
+.manual-date-sublabel { font-size: 9px; opacity: 0.6; }
+.manual-btns { display: flex; gap: 8px; }
+.manual-save {
+  flex: 1; padding: 12px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.25);
+  border-radius: 10px; color: var(--green); font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;
+}
+.manual-cancel-btn {
+  padding: 12px 20px; background: var(--w05); border: 1px solid var(--w08);
+  border-radius: 10px; color: var(--w40); font-size: 12px; cursor: pointer;
+}
+
+.empty { text-align: center; padding: 40px 0; color: var(--w20); font-size: 13px; }
+.hidden { display: none !important; }
+
+@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+@keyframes liveDot { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
+@keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes clockPulse { 0%{box-shadow:0 0 0 0 rgba(0,255,136,0.3)} 70%{box-shadow:0 0 0 20px rgba(0,255,136,0)} 100%{box-shadow:0 0 0 0 rgba(0,255,136,0)} }
+</style>
+</head>
+<body class="clocked-out">
+
+<div class="header">
+  <div>
+    <h1>MIS HORAS</h1>
+    <div class="header-sub">REGISTRO • REDONDEO 15 MIN</div>
+  </div>
+  <div class="live-badge" id="liveBadge">
+    <div class="live-dot"></div>
+    <span class="live-label">ACTIVO</span>
+  </div>
+</div>
+
+<div class="service-area">
+  <input type="text" class="input-base" id="serviceInput" placeholder="Servicio / Empresa...">
+  <div class="service-chips" id="serviceChips"></div>
+  <input type="text" class="input-base notes-input" id="noteInput" placeholder="Notas (opcional): razón de overtime, detalles...">
+</div>
+
+<div class="clock-area">
+  <button class="clock-btn out" id="clockBtn" onclick="toggleClock()">
+    <div class="clock-label" id="clockLabel">ENTRADA</div>
+    <div class="clock-time" id="clockTime" style="font-size:34px">▶</div>
+    <div class="clock-since hidden" id="clockSince"></div>
+    <div class="clock-rounded hidden" id="clockRounded"></div>
+  </button>
+  <div class="clock-service-label hidden" id="clockServiceLabel"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-view="today" onclick="setView('today')">HOY</button>
+  <button class="tab" data-view="week" onclick="setView('week')">SEMANA</button>
+  <button class="tab" data-view="biweek" onclick="setView('biweek')">QUINCENA</button>
+  <button class="tab" data-view="all" onclick="setView('all')">TODO</button>
+</div>
+
+<div class="summary">
+  <div>
+    <div class="summary-label" id="summaryLabel">TOTAL HOY</div>
+    <div class="summary-total" id="summaryTotal">0h 00m</div>
+  </div>
+  <div style="text-align:right">
+    <div class="summary-decimal-label">DECIMAL</div>
+    <div class="summary-decimal" id="summaryDecimal">0.00h</div>
+  </div>
+</div>
+
+<div style="padding:0 20px; margin-bottom:16px">
+  <button class="export-toggle" id="exportToggle" onclick="toggleExport()">⬇ EXPORTAR REPORTE PARA RH</button>
+</div>
+
+<div class="export-panel" id="exportPanel">
+  <div class="export-panel-title">RANGO DE EXPORTACIÓN</div>
+  <div class="quick-btns">
+    <button class="quick-btn" onclick="quickExport('week')">Esta semana</button>
+    <button class="quick-btn" onclick="quickExport('biweek')">Esta quincena</button>
+    <button class="quick-btn" onclick="quickExport('lastbiweek')">Quincena pasada</button>
+  </div>
+  <div class="date-range">
+    <div>
+      <label>DESDE</label>
+      <input type="date" class="input-base" id="exportFrom" style="font-size:12px">
+    </div>
+    <div class="arrow">→</div>
+    <div>
+      <label>HASTA</label>
+      <input type="date" class="input-base" id="exportTo" style="font-size:12px">
+    </div>
+  </div>
+  <button class="export-go" onclick="doExport()">GENERAR CSV PARA RECURSOS HUMANOS</button>
+  <div class="export-note">Incluye: Servicio • Fecha • Entrada • Salida • Horas • Notas • Tipo</div>
+</div>
+
+<div class="entries" id="entriesContainer"></div>
+
+<div style="padding:0 20px" id="manualArea">
+  <button class="manual-toggle" id="manualToggle" onclick="showManualForm()">+ AGREGAR ENTRADA RETROACTIVA</button>
+  <div class="manual-form hidden" id="manualForm">
+    <div class="manual-title">ENTRADA RETROACTIVA</div>
+    <input type="text" class="input-base" id="manualService" placeholder="Servicio / Empresa..." style="margin-bottom:6px; font-size:13px">
+    <div class="service-chips" id="manualServiceChips" style="margin-bottom:10px"></div>
+    <div class="manual-dates">
+      <div>
+        <div class="manual-date-label">INICIO</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input type="date" class="date-input" id="manualStartDate">
+          <input type="number" min="0" max="23" class="time-input" id="manualStartH" value="09">
+          <span class="edit-colon">:</span>
+          <input type="number" min="0" max="59" class="time-input" id="manualStartM" value="00">
+        </div>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <div class="manual-date-label">FIN <span class="manual-date-sublabel">(cambia fecha si cruzó 12AM)</span></div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <input type="date" class="date-input" id="manualEndDate">
+          <input type="number" min="0" max="23" class="time-input" id="manualEndH" value="17">
+          <span class="edit-colon">:</span>
+          <input type="number" min="0" max="59" class="time-input" id="manualEndM" value="00">
+        </div>
+      </div>
+    </div>
+    <input type="text" class="input-base" id="manualNote" placeholder="Notas: razón de overtime, qué pasó, contexto..." style="margin-bottom:14px; font-size:11px">
+    <div class="manual-btns">
+      <button class="manual-save" onclick="saveManual()">GUARDAR</button>
+      <button class="manual-cancel-btn" onclick="hideManualForm()">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ───
+let entries = [];
+let activeSession = null;
+let currentView = 'today';
+let editingId = null;
+let timerInterval = null;
+
+const ENTRIES_KEY = 'mishoras_entries';
+const ACTIVE_KEY = 'mishoras_active';
+
+// ─── Helpers ───
+const pad = (n) => String(n).padStart(2, '0');
+const roundTo15 = (h) => { const r = Math.round(h * 4) / 4; return r < 0.25 ? 0 : r; };
+const calcHours = (s, e) => Math.max(0, (new Date(e) - new Date(s)) / 3600000);
+const formatHours = (h) => { if (h === 0) return '0h 00m'; const hrs = Math.floor(h); const mins = Math.round((h - hrs) * 60); return `${hrs}h ${pad(mins)}m`; };
+const formatTime = (d) => new Date(d).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: true });
+const formatTime24 = (d) => { const x = new Date(d); return `${pad(x.getHours())}:${pad(x.getMinutes())}`; };
+const formatDate = (d) => new Date(d).toLocaleDateString('es', { weekday: 'short', month: 'short', day: 'numeric' });
+const formatDateFull = (d) => new Date(d).toLocaleDateString('es', { year: 'numeric', month: '2-digit', day: '2-digit' });
+const dateKey = (d) => { const x = new Date(d); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; };
+const todayKey = () => dateKey(new Date());
+
+function getWeekStart(d) {
+  const x = new Date(d); const day = x.getDay();
+  x.setDate(x.getDate() - day + (day === 0 ? -6 : 1));
+  x.setHours(0,0,0,0); return x;
+}
+function getBiweekStart(d) {
+  const epoch = new Date('2024-01-01');
+  const diff = Math.floor((new Date(d) - epoch) / (14*24*3600000));
+  const s = new Date(epoch.getTime() + diff * 14*24*3600000);
+  s.setHours(0,0,0,0); return s;
+}
+function getRecentServices() {
+  return [...new Set(entries.map(e => e.service).filter(Boolean))].slice(0, 8);
+}
+
+// ─── Persistence ───
+function loadData() {
+  try { entries = JSON.parse(localStorage.getItem(ENTRIES_KEY) || '[]'); } catch { entries = []; }
+  try { activeSession = JSON.parse(localStorage.getItem(ACTIVE_KEY)); } catch { activeSession = null; }
+}
+function saveData() {
+  localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
+  localStorage.setItem(ACTIVE_KEY, JSON.stringify(activeSession));
+}
+
+// ─── Clock ───
+function toggleClock() {
+  if (activeSession) clockOut(); else clockIn();
+}
+function clockIn() {
+  const svc = document.getElementById('serviceInput').value.trim();
+  const note = document.getElementById('noteInput').value.trim();
+  activeSession = { start: new Date().toISOString(), id: Date.now(), service: svc, note: note };
+  saveData();
+  startTimer();
+  render();
+}
+function clockOut() {
+  if (!activeSession) return;
+  const rawH = calcHours(activeSession.start, new Date().toISOString());
+  const rounded = roundTo15(rawH);
+  const note = document.getElementById('noteInput').value.trim() || activeSession.note || '';
+  if (rounded === 0 && !confirm('Menos de 15 min → 0h. ¿Guardar de todas formas?')) {
+    activeSession = null; saveData(); stopTimer(); render(); return;
+  }
+  entries.unshift({ ...activeSession, end: new Date().toISOString(), rawHours: rawH, hours: rounded, note });
+  activeSession = null;
+  document.getElementById('serviceInput').value = '';
+  document.getElementById('noteInput').value = '';
+  saveData(); stopTimer(); render();
+}
+
+function startTimer() {
+  stopTimer();
+  timerInterval = setInterval(updateLiveTimer, 1000);
+}
+function stopTimer() { clearInterval(timerInterval); }
+function updateLiveTimer() {
+  if (!activeSession) return;
+  const raw = calcHours(activeSession.start, new Date().toISOString());
+  const rounded = roundTo15(raw);
+  document.getElementById('clockTime').textContent = formatHours(raw);
+  document.getElementById('clockRounded').textContent = `≈ ${rounded.toFixed(2)}h redondeado`;
+  updateSummary();
+}
+
+// ─── Views ───
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
+  render();
+}
+
+function filterEntries() {
+  const tk = todayKey();
+  const ws = getWeekStart(new Date());
+  const bs = getBiweekStart(new Date());
+  return entries.filter(e => {
+    if (currentView === 'today') return dateKey(e.start) === tk;
+    if (currentView === 'week') return new Date(e.start) >= ws;
+    if (currentView === 'biweek') return new Date(e.start) >= bs;
+    return true;
+  });
+}
+
+function updateSummary() {
+  const filtered = filterEntries();
+  let total = filtered.reduce((s, e) => s + (e.hours || 0), 0);
+  if (activeSession) total += roundTo15(calcHours(activeSession.start, new Date().toISOString()));
+  const labels = { today: 'HOY', week: 'SEMANA', biweek: 'QUINCENA', all: 'ACUMULADO' };
+  document.getElementById('summaryLabel').textContent = 'TOTAL ' + labels[currentView];
+  document.getElementById('summaryTotal').textContent = formatHours(total);
+  document.getElementById('summaryDecimal').textContent = total.toFixed(2) + 'h';
+}
+
+// ─── Render ───
+function render() {
+  // Body class
+  document.body.className = activeSession ? 'clocked-in' : 'clocked-out';
+
+  // Live badge
+  const lb = document.getElementById('liveBadge');
+  lb.classList.toggle('active', !!activeSession);
+
+  // Clock button
+  const btn = document.getElementById('clockBtn');
+  const label = document.getElementById('clockLabel');
+  const time = document.getElementById('clockTime');
+  const since = document.getElementById('clockSince');
+  const rounded = document.getElementById('clockRounded');
+  const svcLabel = document.getElementById('clockServiceLabel');
+
+  if (activeSession) {
+    btn.className = 'clock-btn in';
+    label.textContent = 'SALIDA';
+    time.style.fontSize = '26px';
+    since.textContent = 'desde ' + formatTime(activeSession.start);
+    since.classList.remove('hidden');
+    rounded.classList.remove('hidden');
+    if (activeSession.service) { svcLabel.textContent = activeSession.service; svcLabel.classList.remove('hidden'); }
+    else { svcLabel.classList.add('hidden'); }
+    document.getElementById('serviceInput').value = activeSession.service || '';
+    document.getElementById('serviceInput').readOnly = true;
+    document.getElementById('serviceInput').style.opacity = '0.5';
+    startTimer();
+    updateLiveTimer();
+  } else {
+    btn.className = 'clock-btn out';
+    label.textContent = 'ENTRADA';
+    time.textContent = '▶';
+    time.style.fontSize = '34px';
+    since.classList.add('hidden');
+    rounded.classList.add('hidden');
+    svcLabel.classList.add('hidden');
+    document.getElementById('serviceInput').readOnly = false;
+    document.getElementById('serviceInput').style.opacity = '1';
+  }
+
+  // Service chips
+  renderServiceChips('serviceChips', document.getElementById('serviceInput'));
+  renderServiceChips('manualServiceChips', document.getElementById('manualService'));
+
+  // Summary
+  updateSummary();
+
+  // Entries
+  renderEntries();
+}
+
+function renderServiceChips(containerId, input) {
+  const container = document.getElementById(containerId);
+  const svcs = getRecentServices();
+  container.innerHTML = '';
+  if (activeSession && containerId === 'serviceChips') return;
+  svcs.forEach(s => {
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (input.value === s ? ' selected' : '');
+    chip.textContent = s;
+    chip.onclick = () => { input.value = s; render(); };
+    container.appendChild(chip);
+  });
+}
+
+function renderEntries() {
+  const filtered = filterEntries();
+  const container = document.getElementById('entriesContainer');
+
+  if (filtered.length === 0 && !activeSession) {
+    container.innerHTML = '<div class="empty">Sin registros en este período</div>';
+    return;
+  }
+
+  const grouped = {};
+  filtered.forEach(e => {
+    const k = dateKey(e.start);
+    if (!grouped[k]) grouped[k] = { date: e.start, entries: [], total: 0 };
+    grouped[k].entries.push(e);
+    grouped[k].total += e.hours || 0;
+  });
+  const days = Object.values(grouped).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  container.innerHTML = days.map(day => `
+    <div class="day-group">
+      <div class="day-header">
+        <div class="day-date">${formatDate(day.date)}</div>
+        <div class="day-total">${formatHours(day.total)} <span class="day-total-dec">${day.total.toFixed(2)}h</span></div>
+      </div>
+      ${day.entries.map(e => editingId === e.id ? renderEditForm(e) : renderEntry(e)).join('')}
+    </div>
+  `).join('');
+}
+
+function renderEntry(e) {
+  const crosses = dateKey(e.start) !== dateKey(e.end);
+  return `<div class="entry">
+    <div class="entry-top">
+      <div class="entry-left">
+        ${e.service ? `<span class="badge-service">${esc(e.service)}</span>` : ''}
+        <span class="entry-time">${formatTime(e.start)} → ${formatTime(e.end)}${crosses ? '<span class="midnight-badge">+1d</span>' : ''}</span>
+        ${e.edited ? '<span class="badge badge-edited">EDITADO</span>' : ''}
+        ${e.manual ? '<span class="badge badge-manual">MANUAL</span>' : ''}
+        ${e.hours === 0 ? '<span class="badge badge-under15">&lt; 15m</span>' : ''}
+      </div>
+      <div class="entry-right">
+        <span class="entry-hours">${formatHours(e.hours)}</span>
+        <span class="entry-dec">${(e.hours||0).toFixed(2)}h</span>
+        <button class="btn-icon" style="color:var(--w20)" onclick="startEdit(${e.id})">✎</button>
+        <button class="btn-icon" style="color:rgba(255,70,70,0.3)" onclick="deleteEntry(${e.id})">✕</button>
+      </div>
+    </div>
+    ${e.note ? `<div class="entry-note">📝 ${esc(e.note)}</div>` : ''}
+  </div>`;
+}
+
+function renderEditForm(e) {
+  const s = new Date(e.start), en = new Date(e.end);
+  return `<div class="entry"><div class="edit-form">
+    <input type="text" class="input-base" id="editSvc" value="${esc(e.service||'')}" placeholder="Servicio..." style="font-size:12px">
+    <div class="edit-row">
+      <div>
+        <div class="edit-section-label">INICIO</div>
+        <div class="edit-time-group">
+          <input type="date" class="date-input" id="editSD" value="${dateKey(s)}">
+          <input type="number" min="0" max="23" class="time-input" id="editSH" value="${pad(s.getHours())}">
+          <span class="edit-colon">:</span>
+          <input type="number" min="0" max="59" class="time-input" id="editSM" value="${pad(s.getMinutes())}">
+        </div>
+      </div>
+      <div style="color:rgba(255,255,255,0.12);padding-top:14px">→</div>
+      <div>
+        <div class="edit-section-label">FIN</div>
+        <div class="edit-time-group">
+          <input type="date" class="date-input" id="editED" value="${dateKey(en)}">
+          <input type="number" min="0" max="23" class="time-input" id="editEH" value="${pad(en.getHours())}">
+          <span class="edit-colon">:</span>
+          <input type="number" min="0" max="59" class="time-input" id="editEM" value="${pad(en.getMinutes())}">
+        </div>
+      </div>
+    </div>
+    <input type="text" class="input-base" id="editNote" value="${esc(e.note||'')}" placeholder="Notas..." style="font-size:11px">
+    <div class="edit-btns">
+      <button class="edit-save" onclick="saveEdit(${e.id})">GUARDAR</button>
+      <button class="edit-cancel" onclick="cancelEdit()">CANCELAR</button>
+    </div>
+  </div></div>`;
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── Actions ───
+function deleteEntry(id) {
+  if (!confirm('¿Borrar este registro?')) return;
+  entries = entries.filter(e => e.id !== id);
+  saveData(); render();
+}
+function startEdit(id) { editingId = id; render(); }
+function cancelEdit() { editingId = null; render(); }
+function saveEdit(id) {
+  const sd = document.getElementById('editSD').value;
+  const sh = document.getElementById('editSH').value.padStart(2,'0');
+  const sm = document.getElementById('editSM').value.padStart(2,'0');
+  const ed = document.getElementById('editED').value;
+  const eh = document.getElementById('editEH').value.padStart(2,'0');
+  const em = document.getElementById('editEM').value.padStart(2,'0');
+  const s = new Date(`${sd}T${sh}:${sm}:00`);
+  const e = new Date(`${ed}T${eh}:${em}:00`);
+  if (e <= s) { alert('La salida debe ser después de la entrada'); return; }
+  const rawH = calcHours(s, e);
+  const svc = document.getElementById('editSvc').value.trim();
+  const note = document.getElementById('editNote').value.trim();
+  entries = entries.map(en => en.id === id ? { ...en, start: s.toISOString(), end: e.toISOString(), rawHours: rawH, hours: roundTo15(rawH), service: svc, note, edited: true } : en);
+  editingId = null;
+  saveData(); render();
+}
+
+// ─── Manual Entry ───
+function showManualForm() {
+  document.getElementById('manualToggle').classList.add('hidden');
+  document.getElementById('manualForm').classList.remove('hidden');
+  document.getElementById('manualStartDate').value = todayKey();
+  document.getElementById('manualEndDate').value = todayKey();
+  renderServiceChips('manualServiceChips', document.getElementById('manualService'));
+}
+function hideManualForm() {
+  document.getElementById('manualToggle').classList.remove('hidden');
+  document.getElementById('manualForm').classList.add('hidden');
+  document.getElementById('manualService').value = '';
+  document.getElementById('manualNote').value = '';
+}
+function saveManual() {
+  const sd = document.getElementById('manualStartDate').value;
+  const sh = document.getElementById('manualStartH').value.padStart(2,'0');
+  const sm = document.getElementById('manualStartM').value.padStart(2,'0');
+  const ed = document.getElementById('manualEndDate').value;
+  const eh = document.getElementById('manualEndH').value.padStart(2,'0');
+  const em = document.getElementById('manualEndM').value.padStart(2,'0');
+  const s = new Date(`${sd}T${sh}:${sm}:00`);
+  const e = new Date(`${ed}T${eh}:${em}:00`);
+  if (e <= s) { alert('La salida debe ser después de la entrada (cambia la fecha de fin si cruzó medianoche)'); return; }
+  const rawH = calcHours(s, e);
+  entries.unshift({
+    id: Date.now(), start: s.toISOString(), end: e.toISOString(),
+    rawHours: rawH, hours: roundTo15(rawH),
+    service: document.getElementById('manualService').value.trim(),
+    note: document.getElementById('manualNote').value.trim(),
+    manual: true
+  });
+  saveData(); hideManualForm(); render();
+}
+
+// ─── Export ───
+function toggleExport() {
+  const panel = document.getElementById('exportPanel');
+  const btn = document.getElementById('exportToggle');
+  panel.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+function quickExport(period) {
+  const now = new Date();
+  let from, to;
+  if (period === 'week') { from = dateKey(getWeekStart(now)); to = todayKey(); }
+  else if (period === 'biweek') { from = dateKey(getBiweekStart(now)); to = todayKey(); }
+  else if (period === 'lastbiweek') {
+    const cb = getBiweekStart(now);
+    const pe = new Date(cb); pe.setDate(pe.getDate() - 1);
+    from = dateKey(getBiweekStart(pe)); to = dateKey(pe);
+  }
+  document.getElementById('exportFrom').value = from;
+  document.getElementById('exportTo').value = to;
+}
+function doExport() {
+  const from = document.getElementById('exportFrom').value;
+  const to = document.getElementById('exportTo').value;
+  let data = [...entries];
+  if (from) data = data.filter(e => dateKey(e.start) >= from);
+  if (to) data = data.filter(e => dateKey(e.start) <= to);
+  data.sort((a, b) => new Date(a.start) - new Date(b.start));
+  if (!data.length) { alert('Sin registros en ese rango'); return; }
+
+  const rows = [['Servicio','Fecha','Entrada','Salida','Horas (decimal)','Horas (HH:MM)','Notas','Tipo']];
+  let total = 0;
+  data.forEach(e => {
+    total += e.hours || 0;
+    rows.push([
+      `"${(e.service||'—').replace(/"/g,'""')}"`,
+      formatDateFull(e.start), formatTime24(e.start), formatTime24(e.end),
+      (e.hours||0).toFixed(2), formatHours(e.hours||0),
+      `"${(e.note||'').replace(/"/g,'""')}"`,
+      e.edited ? 'EDITADO' : (e.manual ? 'MANUAL' : 'AUTO')
+    ]);
+  });
+  rows.push(['','','','TOTAL', total.toFixed(2), formatHours(total), '', '']);
+
+  const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `reporte_horas_${from||'inicio'}_a_${to||'hoy'}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── Init ───
+loadData();
+render();
+
+// ─── PWA Service Worker ───
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
