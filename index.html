@@ -256,6 +256,8 @@ input[type=number] { -moz-appearance: textfield; }
 
 .empty { text-align: center; padding: 40px 0; color: var(--w20); font-size: 13px; }
 .hidden { display: none !important; }
+#backupPanel { display: none; margin: 10px 20px 20px; }
+#backupPanel.open { display: block; }
 
 @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 @keyframes liveDot { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
@@ -370,6 +372,28 @@ input[type=number] { -moz-appearance: textfield; }
       <button class="manual-save" onclick="saveManual()">GUARDAR</button>
       <button class="manual-cancel-btn" onclick="hideManualForm()">CANCELAR</button>
     </div>
+  </div>
+</div>
+
+<!-- Backup / Restore -->
+<div style="padding:0 20px; margin-top:20px">
+  <button class="export-toggle" id="backupToggle" onclick="toggleBackup()" style="border-style:dashed">🔒 RESPALDO DE DATOS</button>
+</div>
+<div class="export-panel" id="backupPanel" style="background:rgba(0,255,136,0.03); border-color:rgba(0,255,136,0.12)">
+  <div class="export-panel-title" style="color:rgba(0,255,136,0.5)">PROTEGE TUS DATOS</div>
+  <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-bottom:14px; line-height:1.5">
+    Exporta un respaldo JSON con TODOS tus datos. Si pierdes el cache o cambias de teléfono, restauras aquí y no pierdes nada.
+  </div>
+  <div style="display:flex; gap:8px; margin-bottom:10px">
+    <button class="export-go" style="flex:1; background:rgba(0,255,136,0.12); border-color:rgba(0,255,136,0.25); color:#00ff88" onclick="backupData()">⬇ DESCARGAR RESPALDO</button>
+  </div>
+  <div style="display:flex; gap:8px; align-items:center">
+    <button class="export-go" style="flex:1; background:rgba(255,200,0,0.1); border-color:rgba(255,200,0,0.2); color:rgba(255,200,0,0.8)" onclick="document.getElementById('restoreFile').click()">⬆ RESTAURAR RESPALDO</button>
+    <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreData(event)">
+  </div>
+  <div id="backupStatus" style="font-size:10px; color:rgba(255,255,255,0.25); margin-top:10px; text-align:center"></div>
+  <div style="font-size:10px; color:rgba(255,255,255,0.15); margin-top:8px; text-align:center">
+    💡 Consejo: haz respaldo cada viernes o después de cargar datos retroactivos
   </div>
 </div>
 
@@ -757,6 +781,70 @@ function doExport() {
   a.download = `reporte_horas_${from||'inicio'}_a_${to||'hoy'}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ─── Backup / Restore ───
+function toggleBackup() {
+  const panel = document.getElementById('backupPanel');
+  const btn = document.getElementById('backupToggle');
+  panel.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+function backupData() {
+  const backup = {
+    version: 2,
+    date: new Date().toISOString(),
+    entries: entries,
+    activeSession: activeSession
+  };
+  const json = JSON.stringify(backup, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mishoras_respaldo_${dateKey(new Date())}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('backupStatus').textContent = '✓ Respaldo descargado — ' + entries.length + ' registros';
+  document.getElementById('backupStatus').style.color = 'rgba(0,255,136,0.6)';
+}
+function restoreData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const backup = JSON.parse(e.target.result);
+      if (!backup.entries || !Array.isArray(backup.entries)) {
+        alert('Archivo de respaldo inválido');
+        return;
+      }
+      const existing = entries.length;
+      if (existing > 0) {
+        const merge = confirm(`Tienes ${existing} registros actuales y el respaldo tiene ${backup.entries.length}.\n\n¿Combinar ambos? (OK = Combinar, Cancelar = Reemplazar todo)`);
+        if (merge) {
+          const existingIds = new Set(entries.map(x => x.id));
+          const newOnes = backup.entries.filter(x => !existingIds.has(x.id));
+          entries = [...entries, ...newOnes].sort((a, b) => new Date(b.start) - new Date(a.start));
+          document.getElementById('backupStatus').textContent = `✓ Combinado: +${newOnes.length} registros nuevos (total: ${entries.length})`;
+        } else {
+          entries = backup.entries;
+          document.getElementById('backupStatus').textContent = `✓ Restaurado: ${entries.length} registros`;
+        }
+      } else {
+        entries = backup.entries;
+        document.getElementById('backupStatus').textContent = `✓ Restaurado: ${entries.length} registros`;
+      }
+      if (backup.activeSession) activeSession = backup.activeSession;
+      saveData();
+      render();
+      document.getElementById('backupStatus').style.color = 'rgba(0,255,136,0.6)';
+    } catch (err) {
+      alert('Error leyendo el archivo: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
 }
 
 // ─── Init ───
