@@ -140,6 +140,20 @@ input[type=number] { -moz-appearance: textfield; }
 .clock-since { font-size: 10px; opacity: 0.5; }
 .clock-rounded { font-size: 10px; opacity: 0.35; margin-top: 2px; }
 .clock-service-label { margin-top: 10px; font-size: 12px; color: rgba(0,255,136,0.5); font-weight: 500; }
+.active-rs-btn {
+  margin-top: 14px;
+  padding: 12px 20px;
+  background: rgba(0,255,136,0.08);
+  border: 1px solid rgba(0,255,136,0.25);
+  border-radius: 10px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  letter-spacing: 0.3px;
+  animation: pulse 2s infinite;
+}
 
 /* Tabs */
 .tabs { display: flex; gap: 4px; padding: 0 20px; margin-bottom: 20px; }
@@ -278,6 +292,21 @@ input[type=number] { -moz-appearance: textfield; }
 .settings-grid .input-base { font-size: 12px; }
 .settings-grid-full .input-base { font-size: 12px; margin-bottom: 8px; }
 .settings-hint { font-size: 10px; color: var(--w30); margin-top: 8px; line-height: 1.4; }
+.lang-selector { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.lang-label { font-size: 10px; color: var(--w30); letter-spacing: 0.5px; margin-bottom: 8px; }
+.lang-buttons { display: flex; gap: 6px; }
+.lang-btn {
+  flex: 1; padding: 10px 8px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+  color: var(--w50); font-size: 12px; cursor: pointer; font-family: var(--font);
+  transition: all 0.15s;
+}
+.lang-btn.active {
+  background: rgba(0,200,255,0.12);
+  border-color: rgba(0,200,255,0.3);
+  color: #6bb8ff;
+  font-weight: 600;
+}
 
 /* Entry row tappable */
 .entry { cursor: pointer; transition: background 0.15s; position: relative; }
@@ -383,45 +412,53 @@ input[type=number] { -moz-appearance: textfield; }
 <div class="header">
   <div>
     <h1>MIS HORAS</h1>
-    <div class="header-sub">REGISTRO • REDONDEO 15 MIN</div>
+    <div class="header-sub" data-i18n="appSubtitle">REGISTRO • REDONDEO 15 MIN</div>
   </div>
   <div style="display:flex; align-items:center; gap:8px">
     <div class="live-badge" id="liveBadge">
       <div class="live-dot"></div>
-      <span class="live-label">ACTIVO</span>
+      <span class="live-label" data-i18n="active">ACTIVO</span>
     </div>
     <button class="settings-btn" onclick="toggleSettings()" title="Ajustes">⚙</button>
   </div>
 </div>
 
 <div id="settingsPanel">
-  <div class="settings-title">AJUSTES — DEFAULTS PARA HOJA DE RUTA</div>
-  <div class="settings-grid-full">
-    <input type="text" class="input-base" id="setDriverName" placeholder="Nombre del conductor (ej: Ziad Haidar)">
-  </div>
-  <div class="settings-grid">
-    <input type="text" class="input-base" id="setDriverNum" placeholder="# Conductor">
-    <input type="text" class="input-base" id="setDefaultService" placeholder="Servicio default (Hesman)">
-  </div>
-  <div class="settings-grid">
-    <input type="text" class="input-base" id="setTruckUnit" placeholder="# Unidad camión">
-    <input type="text" class="input-base" id="setTrailer" placeholder="# Remolque">
+  <div class="settings-title" data-i18n="settingsTitle">AJUSTES — DEFAULTS PARA HOJA DE RUTA</div>
+  <div class="lang-selector">
+    <div class="lang-label" data-i18n="languageLabel">IDIOMA</div>
+    <div class="lang-buttons">
+      <button class="lang-btn" data-lang="es" onclick="setLang('es')">Español</button>
+      <button class="lang-btn" data-lang="en" onclick="setLang('en')">English</button>
+      <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">Français</button>
+    </div>
   </div>
   <div class="settings-grid-full">
-    <input type="text" class="input-base" id="setPlate" placeholder="# Placa">
+    <input type="text" class="input-base" id="setDriverName" data-i18n-placeholder="placeholderDriverName" placeholder="Nombre del conductor">
+  </div>
+  <div class="settings-grid">
+    <input type="text" class="input-base" id="setDriverNum" data-i18n-placeholder="placeholderDriverNum" placeholder="# Conductor">
+    <input type="text" class="input-base" id="setDefaultService" data-i18n-placeholder="placeholderDefaultService" placeholder="Servicio default">
+  </div>
+  <div class="settings-grid">
+    <input type="text" class="input-base" id="setTruckUnit" data-i18n-placeholder="placeholderTruckUnit" placeholder="# Unidad camión">
+    <input type="text" class="input-base" id="setTrailer" data-i18n-placeholder="placeholderTrailer" placeholder="# Remolque">
+  </div>
+  <div class="settings-grid-full">
+    <input type="text" class="input-base" id="setPlate" data-i18n-placeholder="placeholderPlate" placeholder="# Placa">
   </div>
   <div style="display:flex; gap:8px; margin-top:10px">
-    <button class="export-go" style="flex:1; background:rgba(0,200,255,0.15); border-color:rgba(0,200,255,0.3); color:#6bb8ff" onclick="saveSettings()">GUARDAR</button>
+    <button class="export-go" style="flex:1; background:rgba(0,200,255,0.15); border-color:rgba(0,200,255,0.3); color:#6bb8ff" data-i18n="save" onclick="saveSettings()">GUARDAR</button>
   </div>
   <div class="settings-hint">
-    Estos valores se autorellenan al crear nuevas hojas de ruta. Puedes cambiarlos en cualquier momento por hoja.
+    <span data-i18n="settingsHint">Estos valores se autorellenan al crear nuevas hojas de ruta. Puedes cambiarlos en cualquier momento por hoja.</span>
   </div>
 </div>
 
 <div class="service-area">
-  <input type="text" class="input-base" id="serviceInput" placeholder="Servicio / Empresa...">
+  <input type="text" class="input-base" id="serviceInput" data-i18n-placeholder="placeholderService" placeholder="Servicio / Empresa...">
   <div class="service-chips" id="serviceChips"></div>
-  <input type="text" class="input-base notes-input" id="noteInput" placeholder="Notas (opcional): razón de overtime, detalles...">
+  <input type="text" class="input-base notes-input" id="noteInput" data-i18n-placeholder="placeholderNotes" placeholder="Notas (opcional): razón de overtime, detalles...">
 </div>
 
 <div class="clock-area">
@@ -432,13 +469,16 @@ input[type=number] { -moz-appearance: textfield; }
     <div class="clock-rounded hidden" id="clockRounded"></div>
   </button>
   <div class="clock-service-label hidden" id="clockServiceLabel"></div>
+  <button class="active-rs-btn hidden" id="activeRsBtn" onclick="openActiveRouteSheet()">
+    📋
+  </button>
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-view="today" onclick="setView('today')">HOY</button>
-  <button class="tab" data-view="week" onclick="setView('week')">SEMANA</button>
-  <button class="tab" data-view="biweek" onclick="setView('biweek')">QUINCENA</button>
-  <button class="tab" data-view="all" onclick="setView('all')">TODO</button>
+  <button class="tab active" data-view="today" data-i18n="today" onclick="setView('today')">HOY</button>
+  <button class="tab" data-view="week" data-i18n="week" onclick="setView('week')">SEMANA</button>
+  <button class="tab" data-view="biweek" data-i18n="biweek" onclick="setView('biweek')">QUINCENA</button>
+  <button class="tab" data-view="all" data-i18n="all" onclick="setView('all')">TODO</button>
 </div>
 
 <div class="summary">
@@ -447,48 +487,48 @@ input[type=number] { -moz-appearance: textfield; }
     <div class="summary-total" id="summaryTotal">0h 00m</div>
   </div>
   <div style="text-align:right">
-    <div class="summary-decimal-label">DECIMAL</div>
+    <div class="summary-decimal-label" data-i18n="decimal">DECIMAL</div>
     <div class="summary-decimal" id="summaryDecimal">0.00h</div>
   </div>
 </div>
 
 <div style="padding:0 20px; margin-bottom:16px">
-  <button class="export-toggle" id="exportToggle" onclick="toggleExport()">⬇ EXPORTAR REPORTE PARA RH</button>
+  <button class="export-toggle" id="exportToggle" data-i18n="exportForHR" onclick="toggleExport()">⬇ EXPORTAR REPORTE PARA RH</button>
 </div>
 
 <div class="export-panel" id="exportPanel">
-  <div class="export-panel-title">RANGO DE EXPORTACIÓN</div>
+  <div class="export-panel-title" data-i18n="exportRange">RANGO DE EXPORTACIÓN</div>
   <div class="quick-btns">
-    <button class="quick-btn" onclick="quickExport('week')">Esta semana</button>
-    <button class="quick-btn" onclick="quickExport('biweek')">Esta quincena</button>
-    <button class="quick-btn" onclick="quickExport('lastbiweek')">Quincena pasada</button>
+    <button class="quick-btn" data-i18n="thisWeek" onclick="quickExport('week')">Esta semana</button>
+    <button class="quick-btn" data-i18n="thisBiweek" onclick="quickExport('biweek')">Esta quincena</button>
+    <button class="quick-btn" data-i18n="lastBiweek" onclick="quickExport('lastbiweek')">Quincena pasada</button>
   </div>
   <div class="date-range">
     <div>
-      <label>DESDE</label>
+      <label data-i18n="from">DESDE</label>
       <input type="date" class="input-base" id="exportFrom" style="font-size:12px">
     </div>
     <div class="arrow">→</div>
     <div>
-      <label>HASTA</label>
+      <label data-i18n="to">HASTA</label>
       <input type="date" class="input-base" id="exportTo" style="font-size:12px">
     </div>
   </div>
-  <button class="export-go" onclick="doExport()">GENERAR CSV PARA RECURSOS HUMANOS</button>
-  <div class="export-note">Incluye: Servicio • Fecha • Entrada • Salida • Horas • Notas • Tipo</div>
+  <button class="export-go" data-i18n="generateHRCSV" onclick="doExport()">GENERAR CSV PARA RECURSOS HUMANOS</button>
+  <div class="export-note" data-i18n="includesLabel">Incluye: Servicio • Fecha • Entrada • Salida • Horas • Notas • Tipo</div>
 </div>
 
 <div class="entries" id="entriesContainer"></div>
 
 <div style="padding:0 20px" id="manualArea">
-  <button class="manual-toggle" id="manualToggle" onclick="showManualForm()">+ AGREGAR ENTRADA RETROACTIVA</button>
+  <button class="manual-toggle" id="manualToggle" data-i18n="addRetroactive" onclick="showManualForm()">+ AGREGAR ENTRADA RETROACTIVA</button>
   <div class="manual-form hidden" id="manualForm">
-    <div class="manual-title">ENTRADA RETROACTIVA</div>
+    <div class="manual-title" data-i18n="retroactiveTitle">ENTRADA RETROACTIVA</div>
     <input type="text" class="input-base" id="manualService" placeholder="Servicio / Empresa..." style="margin-bottom:6px; font-size:13px">
     <div class="service-chips" id="manualServiceChips" style="margin-bottom:10px"></div>
     <div class="manual-dates">
       <div>
-        <div class="manual-date-label">INICIO</div>
+        <div class="manual-date-label" data-i18n="startLabel">INICIO</div>
         <div style="display:flex;align-items:center;gap:4px">
           <input type="date" class="date-input" id="manualStartDate">
           <input type="number" min="0" max="23" class="time-input" id="manualStartH" value="09">
@@ -498,7 +538,7 @@ input[type=number] { -moz-appearance: textfield; }
       </div>
       <div class="arrow">→</div>
       <div>
-        <div class="manual-date-label">FIN <span class="manual-date-sublabel">(cambia fecha si cruzó 12AM)</span></div>
+        <div class="manual-date-label"><span data-i18n="endLabel">FIN</span> <span class="manual-date-sublabel" data-i18n="endLabelHint">(cambia fecha si cruzó 12AM)</span></div>
         <div style="display:flex;align-items:center;gap:4px">
           <input type="date" class="date-input" id="manualEndDate">
           <input type="number" min="0" max="23" class="time-input" id="manualEndH" value="17">
@@ -507,42 +547,42 @@ input[type=number] { -moz-appearance: textfield; }
         </div>
       </div>
     </div>
-    <input type="text" class="input-base" id="manualNote" placeholder="Notas: razón de overtime, qué pasó, contexto..." style="margin-bottom:14px; font-size:11px">
+    <input type="text" class="input-base" id="manualNote" data-i18n-placeholder="placeholderRetroNotes" placeholder="Notas: razón de overtime, qué pasó, contexto..." style="margin-bottom:14px; font-size:11px">
     <div class="manual-btns">
-      <button class="manual-save" onclick="saveManual()">GUARDAR</button>
-      <button class="manual-cancel-btn" onclick="hideManualForm()">CANCELAR</button>
+      <button class="manual-save" data-i18n="save" onclick="saveManual()">GUARDAR</button>
+      <button class="manual-cancel-btn" data-i18n="cancel" onclick="hideManualForm()">CANCELAR</button>
     </div>
   </div>
 </div>
 
 <!-- Backup / Restore -->
 <div style="padding:0 20px; margin-top:20px">
-  <button class="export-toggle" id="backupToggle" onclick="toggleBackup()" style="border-style:dashed">🔒 RESPALDO DE DATOS</button>
+  <button class="export-toggle" id="backupToggle" data-i18n="backupTitle" onclick="toggleBackup()" style="border-style:dashed">🔒 RESPALDO DE DATOS</button>
 </div>
 <div class="export-panel" id="backupPanel" style="background:rgba(0,255,136,0.03); border-color:rgba(0,255,136,0.12)">
-  <div class="export-panel-title" style="color:rgba(0,255,136,0.5)">PROTEGE TUS DATOS</div>
+  <div class="export-panel-title" data-i18n="protectData" style="color:rgba(0,255,136,0.5)">PROTEGE TUS DATOS</div>
   <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-bottom:14px; line-height:1.5">
-    Exporta un respaldo JSON con TODOS tus datos. Si pierdes el cache o cambias de teléfono, restauras aquí y no pierdes nada.
+    <span data-i18n="backupDescription">Exporta un respaldo JSON con TODOS tus datos. Si pierdes el cache o cambias de teléfono, restauras aquí y no pierdes nada.</span>
   </div>
   <div style="display:flex; gap:8px; margin-bottom:10px">
-    <button class="export-go" style="flex:1; background:rgba(0,255,136,0.12); border-color:rgba(0,255,136,0.25); color:#00ff88" onclick="backupData()">⬇ DESCARGAR RESPALDO</button>
+    <button class="export-go" style="flex:1; background:rgba(0,255,136,0.12); border-color:rgba(0,255,136,0.25); color:#00ff88" data-i18n="downloadBackup" onclick="backupData()">⬇ DESCARGAR RESPALDO</button>
   </div>
   <div style="display:flex; gap:8px; align-items:center">
-    <button class="export-go" style="flex:1; background:rgba(255,200,0,0.1); border-color:rgba(255,200,0,0.2); color:rgba(255,200,0,0.8)" onclick="document.getElementById('restoreFile').click()">⬆ RESTAURAR RESPALDO</button>
+    <button class="export-go" style="flex:1; background:rgba(255,200,0,0.1); border-color:rgba(255,200,0,0.2); color:rgba(255,200,0,0.8)" data-i18n="restoreBackup" onclick="document.getElementById('restoreFile').click()">⬆ RESTAURAR RESPALDO</button>
     <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreData(event)">
   </div>
   <div id="backupStatus" style="font-size:10px; color:rgba(255,255,255,0.25); margin-top:10px; text-align:center"></div>
   <div style="font-size:10px; color:rgba(255,255,255,0.15); margin-top:8px; text-align:center">
-    💡 Consejo: haz respaldo cada viernes o después de cargar datos retroactivos
+    <span data-i18n="backupTip">💡 Consejo: haz respaldo cada viernes o después de cargar datos retroactivos</span>
   </div>
 </div>
 
 <!-- ─── Route Sheet Overlay ─── -->
 <div class="rs-overlay" id="rsOverlay">
   <div class="rs-topbar">
-    <button class="rs-back" onclick="closeRouteSheet()">← Volver</button>
+    <button class="rs-back" data-i18n="back" onclick="closeRouteSheet()">← Volver</button>
     <div style="text-align:center">
-      <div class="rs-topbar-title">HOJA DE RUTA</div>
+      <div class="rs-topbar-title" data-i18n="rsTitle">HOJA DE RUTA</div>
       <div class="rs-topbar-date" id="rsTopDate"></div>
     </div>
     <div style="width:70px"></div>
@@ -550,18 +590,18 @@ input[type=number] { -moz-appearance: textfield; }
 
   <!-- Client & Day -->
   <div class="rs-section">
-    <div class="rs-section-title">CLIENT & DAY</div>
+    <div class="rs-section-title" data-i18n="rsClientDay">CLIENT & DAY</div>
     <div class="rs-field">
-      <div class="rs-field-label">CLIENT / SERVICE</div>
+      <div class="rs-field-label" data-i18n="rsClientService">CLIENT / SERVICE</div>
       <input type="text" class="input-base" id="rsClient" oninput="updateRouteSheet()">
     </div>
     <div class="rs-row-2">
       <div class="rs-field">
-        <div class="rs-field-label">START TIME</div>
+        <div class="rs-field-label" data-i18n="rsStartTime">START TIME</div>
         <input type="time" class="input-base" id="rsStartTime" onchange="updateRouteSheetTimes()">
       </div>
       <div class="rs-field">
-        <div class="rs-field-label">END TIME</div>
+        <div class="rs-field-label" data-i18n="rsEndTime">END TIME</div>
         <input type="time" class="input-base" id="rsEndTime" onchange="updateRouteSheetTimes()">
       </div>
     </div>
@@ -570,38 +610,38 @@ input[type=number] { -moz-appearance: textfield; }
 
   <!-- Driver & Vehicle -->
   <div class="rs-section">
-    <div class="rs-section-title">DRIVER & VEHICLE</div>
+    <div class="rs-section-title" data-i18n="rsDriverVehicle">DRIVER & VEHICLE</div>
     <div class="rs-field">
-      <div class="rs-field-label">DRIVER NAME</div>
+      <div class="rs-field-label" data-i18n="rsDriverName">DRIVER NAME</div>
       <input type="text" class="input-base" id="rsDriverName" oninput="updateRouteSheet()">
     </div>
     <div class="rs-row-2">
       <div class="rs-field">
-        <div class="rs-field-label">DRIVER #</div>
+        <div class="rs-field-label" data-i18n="rsDriverNum">DRIVER #</div>
         <input type="text" class="input-base" id="rsDriverNum" oninput="updateRouteSheet()">
       </div>
       <div class="rs-field">
-        <div class="rs-field-label">LICENSE PLATE</div>
+        <div class="rs-field-label" data-i18n="rsPlate">LICENSE PLATE</div>
         <input type="text" class="input-base" id="rsPlate" oninput="updateRouteSheet()">
       </div>
     </div>
     <div class="rs-row-2">
       <div class="rs-field">
-        <div class="rs-field-label">TRUCK UNIT #</div>
+        <div class="rs-field-label" data-i18n="rsTruckUnit">TRUCK UNIT #</div>
         <input type="text" class="input-base" id="rsTruckUnit" oninput="updateRouteSheet()">
       </div>
       <div class="rs-field">
-        <div class="rs-field-label">TRAILER #</div>
+        <div class="rs-field-label" data-i18n="rsTrailer">TRAILER #</div>
         <input type="text" class="input-base" id="rsTrailer" oninput="updateRouteSheet()">
       </div>
     </div>
     <div class="rs-row-2">
       <div class="rs-field">
-        <div class="rs-field-label">KM START</div>
+        <div class="rs-field-label" data-i18n="rsKmStart">KM START</div>
         <input type="number" class="input-base" id="rsKmStart" oninput="updateRouteSheet()">
       </div>
       <div class="rs-field">
-        <div class="rs-field-label">KM END</div>
+        <div class="rs-field-label" data-i18n="rsKmEnd">KM END</div>
         <input type="number" class="input-base" id="rsKmEnd" oninput="updateRouteSheet()">
       </div>
     </div>
@@ -609,78 +649,77 @@ input[type=number] { -moz-appearance: textfield; }
 
   <!-- Stops -->
   <div class="rs-section">
-    <div class="rs-section-title">STOPS / PARADAS</div>
+    <div class="rs-section-title" data-i18n="rsStops">STOPS / PARADAS</div>
     <div id="rsActiveStopBanner"></div>
     <div id="rsStopsList"></div>
     <div class="rs-add-buttons">
       <button class="rs-add-now" id="rsAddNowBtn" onclick="addStopNow()">+ AÑADIR (AHORA)</button>
-      <button class="rs-add-manual" onclick="toggleManualStop()">+ MANUAL</button>
+      <button class="rs-add-manual" data-i18n="rsAddManual" onclick="toggleManualStop()">+ MANUAL</button>
     </div>
     <div id="rsManualStopForm" class="hidden" style="margin-top:12px; padding:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px">
       <div class="rs-row-2" style="margin-bottom:8px">
-        <input type="time" class="input-base" id="msArrived" placeholder="Llegada">
-        <input type="time" class="input-base" id="msDeparted" placeholder="Salida">
+        <input type="time" class="input-base" id="msArrived" data-i18n-placeholder="rsArrival" placeholder="Llegada">
+        <input type="time" class="input-base" id="msDeparted" data-i18n-placeholder="rsDeparture" placeholder="Salida">
       </div>
-      <input type="text" class="input-base" id="msLocation" placeholder="Ubicación / Endroit" style="margin-bottom:8px; font-size:12px">
+      <input type="text" class="input-base" id="msLocation" data-i18n-placeholder="rsLocation" placeholder="Ubicación / Endroit" style="margin-bottom:8px; font-size:12px">
       <div class="rs-row-2" style="margin-bottom:8px">
-        <input type="text" class="input-base" id="msPallets" placeholder="Palettes">
-        <input type="text" class="input-base" id="msInvoice" placeholder="N° factura">
+        <input type="text" class="input-base" id="msPallets" data-i18n-placeholder="rsPallets" placeholder="Palettes">
+        <input type="text" class="input-base" id="msInvoice" data-i18n-placeholder="rsInvoice" placeholder="N° factura">
       </div>
-      <input type="text" class="input-base" id="msRemarks" placeholder="Remarques" style="margin-bottom:10px; font-size:11px">
+      <input type="text" class="input-base" id="msRemarks" data-i18n-placeholder="rsRemarks" placeholder="Remarques" style="margin-bottom:10px; font-size:11px">
       <div style="display:flex; gap:6px">
-        <button class="manual-save" onclick="saveManualStop()">GUARDAR</button>
-        <button class="manual-cancel-btn" onclick="toggleManualStop()">CANCELAR</button>
+        <button class="manual-save" data-i18n="save" onclick="saveManualStop()">GUARDAR</button>
+        <button class="manual-cancel-btn" data-i18n="cancel" onclick="toggleManualStop()">CANCELAR</button>
       </div>
     </div>
   </div>
 
   <!-- Stop Editor (inline) -->
   <div class="rs-section hidden" id="rsStopEditor">
-    <div class="rs-section-title">EDITAR PARADA</div>
+    <div class="rs-section-title" data-i18n="rsEditStop">EDITAR PARADA</div>
     <div class="rs-row-2" style="margin-bottom:8px">
       <div class="rs-field">
-        <div class="rs-field-label">LLEGADA</div>
+        <div class="rs-field-label" data-i18n="rsArrival">LLEGADA</div>
         <input type="time" class="input-base" id="esArrived">
       </div>
       <div class="rs-field">
-        <div class="rs-field-label">SALIDA</div>
+        <div class="rs-field-label" data-i18n="rsDeparture">SALIDA</div>
         <input type="time" class="input-base" id="esDeparted">
       </div>
     </div>
     <div class="rs-field">
-      <div class="rs-field-label">UBICACIÓN</div>
+      <div class="rs-field-label" data-i18n="rsLocation">UBICACIÓN</div>
       <input type="text" class="input-base" id="esLocation" style="font-size:12px">
     </div>
     <div class="rs-row-2" style="margin-bottom:8px">
       <div class="rs-field">
-        <div class="rs-field-label">PALETTES</div>
+        <div class="rs-field-label" data-i18n="rsPallets">PALETTES</div>
         <input type="text" class="input-base" id="esPallets">
       </div>
       <div class="rs-field">
-        <div class="rs-field-label">N° FACTURA</div>
+        <div class="rs-field-label" data-i18n="rsInvoice">N° FACTURA</div>
         <input type="text" class="input-base" id="esInvoice">
       </div>
     </div>
     <div class="rs-field">
-      <div class="rs-field-label">REMARQUES</div>
+      <div class="rs-field-label" data-i18n="rsRemarks">REMARQUES</div>
       <input type="text" class="input-base" id="esRemarks" style="font-size:11px">
     </div>
     <div style="display:flex; gap:6px; margin-top:10px">
-      <button class="manual-save" onclick="saveStopEdit()">GUARDAR CAMBIOS</button>
-      <button class="manual-cancel-btn" onclick="cancelStopEdit()">CANCELAR</button>
+      <button class="manual-save" data-i18n="saveChanges" onclick="saveStopEdit()">GUARDAR CAMBIOS</button>
+      <button class="manual-cancel-btn" data-i18n="cancel" onclick="cancelStopEdit()">CANCELAR</button>
     </div>
   </div>
 
   <!-- Export -->
   <div class="rs-section">
-    <div class="rs-section-title">EXPORTAR Y ENVIAR</div>
+    <div class="rs-section-title" data-i18n="rsExportTitle">EXPORTAR Y ENVIAR</div>
     <div class="rs-export-btns">
       <button class="rs-export-btn rs-export-pdf" onclick="exportRouteSheetPDF()">📄 PDF</button>
       <button class="rs-export-btn rs-export-csv" onclick="exportRouteSheetCSV()">📊 CSV</button>
     </div>
     <div style="font-size:10px; color:var(--w30); margin-top:10px; text-align:center; line-height:1.4">
-      PDF en inglés • Compartir directo por correo via Android Share<br>
-      CSV con todos los datos crudos
+      <span data-i18n="rsExportNote">PDF en inglés • Compartir directo por correo via Android Share</span>
     </div>
   </div>
 
@@ -688,6 +727,490 @@ input[type=number] { -moz-appearance: textfield; }
 </div>
 
 <script>
+// ─── Translations ───
+const TRANSLATIONS = {
+  es: {
+    appSubtitle: 'REGISTRO • REDONDEO 15 MIN',
+    active: 'ACTIVO',
+    settingsTitle: 'AJUSTES — DEFAULTS PARA HOJA DE RUTA',
+    languageLabel: 'IDIOMA',
+    save: 'GUARDAR',
+    cancel: 'CANCELAR',
+    saveChanges: 'GUARDAR CAMBIOS',
+    settingsHint: 'Estos valores se autorellenan al crear nuevas hojas de ruta. Puedes cambiarlos en cualquier momento.',
+    placeholderDriverName: 'Nombre del conductor',
+    placeholderDriverNum: '# Conductor',
+    placeholderDefaultService: 'Servicio default',
+    placeholderTruckUnit: '# Unidad camión',
+    placeholderTrailer: '# Remolque',
+    placeholderPlate: '# Placa',
+    placeholderService: 'Servicio / Empresa...',
+    placeholderNotes: 'Notas (opcional): razón de overtime, detalles...',
+    clockIn: 'ENTRADA',
+    clockOut: 'SALIDA',
+    sinceLabel: 'desde',
+    roundedLabel: 'redondeado',
+    openActiveRs: '📋 ABRIR HOJA DE RUTA EN PROGRESO →',
+    activeRsWithStops: '📋 HOJA DE RUTA • {n} {label} →',
+    stop1: 'PARADA',
+    stopMany: 'PARADAS',
+    today: 'HOY',
+    week: 'SEMANA',
+    biweek: 'QUINCENA',
+    all: 'TODO',
+    totalToday: 'TOTAL HOY',
+    totalWeek: 'TOTAL SEMANA',
+    totalBiweek: 'TOTAL QUINCENA',
+    totalAll: 'TOTAL ACUMULADO',
+    decimal: 'DECIMAL',
+    exportForHR: '⬇ EXPORTAR REPORTE PARA RH',
+    exportRange: 'RANGO DE EXPORTACIÓN',
+    thisWeek: 'Esta semana',
+    thisBiweek: 'Esta quincena',
+    lastBiweek: 'Quincena pasada',
+    from: 'DESDE',
+    to: 'HASTA',
+    generateHRCSV: 'GENERAR CSV PARA RECURSOS HUMANOS',
+    includesLabel: 'Incluye: Servicio • Fecha • Entrada • Salida • Horas • Notas • Tipo',
+    noEntries: 'Sin registros en este período',
+    tapForRouteSheet: 'Toca para hoja de ruta →',
+    edited: 'EDITADO',
+    manual: 'MANUAL',
+    under15: '< 15m',
+    startLabel: 'INICIO',
+    endLabel: 'FIN',
+    endLabelHint: '(cambia fecha si cruzó 12AM)',
+    addRetroactive: '+ AGREGAR ENTRADA RETROACTIVA',
+    retroactiveTitle: 'ENTRADA RETROACTIVA',
+    placeholderRetroNotes: 'Notas: razón de overtime, qué pasó, contexto...',
+    backupTitle: '🔒 RESPALDO DE DATOS',
+    protectData: 'PROTEGE TUS DATOS',
+    backupDescription: 'Exporta un respaldo JSON con TODOS tus datos. Si pierdes el cache o cambias de teléfono, restauras aquí y no pierdes nada.',
+    downloadBackup: '⬇ DESCARGAR RESPALDO',
+    restoreBackup: '⬆ RESTAURAR RESPALDO',
+    backupTip: '💡 Consejo: haz respaldo cada viernes o después de cargar datos retroactivos',
+    backupDownloaded: '✓ Respaldo descargado — {n} registros',
+    invalidBackup: 'Archivo de respaldo inválido',
+    backupMergePrompt: 'Tienes {existing} registros actuales y el respaldo tiene {backup}.\n\n¿Combinar ambos? (OK = Combinar, Cancelar = Reemplazar todo)',
+    backupMerged: '✓ Combinado: +{n} registros nuevos (total: {total})',
+    backupRestored: '✓ Restaurado: {n} registros',
+    backupError: 'Error leyendo el archivo: ',
+    // Route sheet
+    rsTitle: 'HOJA DE RUTA',
+    inProgress: 'EN PROGRESO',
+    back: '← Volver',
+    rsClientDay: 'CLIENTE Y DÍA',
+    rsClientService: 'CLIENTE / SERVICIO',
+    rsStartTime: 'HORA INICIO',
+    rsEndTime: 'HORA FIN',
+    rsTotalLabel: 'Total',
+    rsInProgressTotal: '🟢 EN PROGRESO • {hours} ({decimal}h redondeado)',
+    rsDriverVehicle: 'CONDUCTOR Y VEHÍCULO',
+    rsDriverName: 'NOMBRE CONDUCTOR',
+    rsDriverNum: '# CONDUCTOR',
+    rsPlate: 'PLACA',
+    rsTruckUnit: '# UNIDAD CAMIÓN',
+    rsTrailer: '# REMOLQUE',
+    rsKmStart: 'KM INICIO',
+    rsKmEnd: 'KM FIN',
+    rsStops: 'PARADAS',
+    rsAtStop: 'EN PARADA',
+    rsAtStopFrom: 'desde',
+    rsLeaveNow: 'SALIR AHORA',
+    rsArrivedNow: '+ LLEGUÉ AHORA',
+    rsNewStopNow: '+ NUEVA PARADA (AHORA)',
+    rsAddManual: '+ MANUAL',
+    rsEditStop: 'EDITAR PARADA',
+    rsArrival: 'LLEGADA',
+    rsDeparture: 'SALIDA',
+    rsLocation: 'UBICACIÓN',
+    rsPallets: 'PALETTES',
+    rsInvoice: 'N° FACTURA',
+    rsRemarks: 'OBSERVACIONES',
+    rsExportTitle: 'EXPORTAR Y ENVIAR',
+    rsExportNote: 'PDF y CSV en el idioma de la app • Compartir directo por correo via Android Share',
+    rsNoStops: 'Sin paradas aún',
+    rsMarkDepartureBtn: 'MARCAR SALIDA AHORA',
+    rsLocationPrompt: 'Ubicación / Endroit (opcional):',
+    // Confirms
+    confirmUnder15: 'Menos de 15 min → 0h. ¿Guardar de todas formas?',
+    confirmDeleteEntry: '¿Borrar este registro?',
+    confirmDeleteStop: '¿Borrar esta parada?',
+    confirmCloseActive: 'Hay una parada abierta. ¿Marcarle salida ahora y crear otra?',
+    confirmExportActive: 'Esta hoja está EN PROGRESO (sin SALIDA). El PDF usará la hora actual como hora de fin. ¿Continuar?',
+    alertEndAfterStart: 'La salida debe ser después de la entrada',
+    alertEndAfterStartCross: 'La salida debe ser después de la entrada (cambia la fecha de fin si cruzó medianoche)',
+    alertEndTimeAfter: 'La hora de fin debe ser después de la hora de inicio',
+    alertNoRangeData: 'Sin registros en ese rango',
+    alertNeedArrival: 'Indica al menos la hora de llegada',
+    alertNoPdfLib: 'PDF library no cargada. Verifica tu conexión.',
+    // PDF/CSV
+    pdfTitle: 'DAILY ROUTE SHEET',
+    pdfClient: 'Client',
+    pdfDate: 'Date',
+    pdfDriverName: 'Driver Name',
+    pdfDriverNum: 'Driver #',
+    pdfStartTime: 'Start Time',
+    pdfEndTime: 'End Time',
+    pdfTotalHours: 'Total Hours',
+    pdfTruckUnit: 'Truck Unit #',
+    pdfTrailer: 'Trailer #',
+    pdfPlate: 'License Plate',
+    pdfKmStart: 'KM Start',
+    pdfKmEnd: 'KM End',
+    pdfTotalKm: 'Total KM',
+    pdfStops: 'STOPS',
+    pdfColNum: '#',
+    pdfColArrival: 'Arrival',
+    pdfColDeparture: 'Departure',
+    pdfColLocation: 'Location',
+    pdfColPallets: 'Pal.',
+    pdfColInvoice: 'Invoice #',
+    pdfColRemarks: 'Remarks',
+    pdfNoStops: 'No stops recorded',
+    pdfGenerated: 'Generated by Mis Horas',
+    pdfDriverSignature: 'Driver signature: ______________________________',
+    pdfDateLine: 'Date: ____________',
+    pdfInProgress: '(in progress)',
+  },
+  en: {
+    appSubtitle: 'TIME TRACKING • 15-MIN ROUNDING',
+    active: 'ACTIVE',
+    settingsTitle: 'SETTINGS — ROUTE SHEET DEFAULTS',
+    languageLabel: 'LANGUAGE',
+    save: 'SAVE',
+    cancel: 'CANCEL',
+    saveChanges: 'SAVE CHANGES',
+    settingsHint: 'These values auto-fill when creating new route sheets. You can change them anytime.',
+    placeholderDriverName: 'Driver name',
+    placeholderDriverNum: 'Driver #',
+    placeholderDefaultService: 'Default service',
+    placeholderTruckUnit: 'Truck unit #',
+    placeholderTrailer: 'Trailer #',
+    placeholderPlate: 'License plate',
+    placeholderService: 'Service / Company...',
+    placeholderNotes: 'Notes (optional): overtime reason, details...',
+    clockIn: 'CLOCK IN',
+    clockOut: 'CLOCK OUT',
+    sinceLabel: 'since',
+    roundedLabel: 'rounded',
+    openActiveRs: '📋 OPEN ROUTE SHEET IN PROGRESS →',
+    activeRsWithStops: '📋 ROUTE SHEET • {n} {label} →',
+    stop1: 'STOP',
+    stopMany: 'STOPS',
+    today: 'TODAY',
+    week: 'WEEK',
+    biweek: 'BIWEEKLY',
+    all: 'ALL',
+    totalToday: 'TOTAL TODAY',
+    totalWeek: 'TOTAL WEEK',
+    totalBiweek: 'TOTAL BIWEEKLY',
+    totalAll: 'TOTAL ALL TIME',
+    decimal: 'DECIMAL',
+    exportForHR: '⬇ EXPORT REPORT FOR HR',
+    exportRange: 'EXPORT RANGE',
+    thisWeek: 'This week',
+    thisBiweek: 'This biweekly',
+    lastBiweek: 'Last biweekly',
+    from: 'FROM',
+    to: 'TO',
+    generateHRCSV: 'GENERATE CSV FOR HUMAN RESOURCES',
+    includesLabel: 'Includes: Service • Date • Start • End • Hours • Notes • Type',
+    noEntries: 'No entries in this period',
+    tapForRouteSheet: 'Tap for route sheet →',
+    edited: 'EDITED',
+    manual: 'MANUAL',
+    under15: '< 15m',
+    startLabel: 'START',
+    endLabel: 'END',
+    endLabelHint: '(change date if past midnight)',
+    addRetroactive: '+ ADD RETROACTIVE ENTRY',
+    retroactiveTitle: 'RETROACTIVE ENTRY',
+    placeholderRetroNotes: 'Notes: overtime reason, what happened, context...',
+    backupTitle: '🔒 DATA BACKUP',
+    protectData: 'PROTECT YOUR DATA',
+    backupDescription: 'Export a JSON backup with ALL your data. If you lose cache or change phones, restore here and lose nothing.',
+    downloadBackup: '⬇ DOWNLOAD BACKUP',
+    restoreBackup: '⬆ RESTORE BACKUP',
+    backupTip: '💡 Tip: backup every Friday or after loading retroactive data',
+    backupDownloaded: '✓ Backup downloaded — {n} entries',
+    invalidBackup: 'Invalid backup file',
+    backupMergePrompt: 'You have {existing} current entries and the backup has {backup}.\n\nMerge both? (OK = Merge, Cancel = Replace all)',
+    backupMerged: '✓ Merged: +{n} new entries (total: {total})',
+    backupRestored: '✓ Restored: {n} entries',
+    backupError: 'Error reading file: ',
+    rsTitle: 'ROUTE SHEET',
+    inProgress: 'IN PROGRESS',
+    back: '← Back',
+    rsClientDay: 'CLIENT & DAY',
+    rsClientService: 'CLIENT / SERVICE',
+    rsStartTime: 'START TIME',
+    rsEndTime: 'END TIME',
+    rsTotalLabel: 'Total',
+    rsInProgressTotal: '🟢 IN PROGRESS • {hours} ({decimal}h rounded)',
+    rsDriverVehicle: 'DRIVER & VEHICLE',
+    rsDriverName: 'DRIVER NAME',
+    rsDriverNum: 'DRIVER #',
+    rsPlate: 'LICENSE PLATE',
+    rsTruckUnit: 'TRUCK UNIT #',
+    rsTrailer: 'TRAILER #',
+    rsKmStart: 'KM START',
+    rsKmEnd: 'KM END',
+    rsStops: 'STOPS',
+    rsAtStop: 'AT STOP',
+    rsAtStopFrom: 'since',
+    rsLeaveNow: 'LEAVE NOW',
+    rsArrivedNow: '+ ARRIVED NOW',
+    rsNewStopNow: '+ NEW STOP (NOW)',
+    rsAddManual: '+ MANUAL',
+    rsEditStop: 'EDIT STOP',
+    rsArrival: 'ARRIVAL',
+    rsDeparture: 'DEPARTURE',
+    rsLocation: 'LOCATION',
+    rsPallets: 'PALLETS',
+    rsInvoice: 'INVOICE #',
+    rsRemarks: 'REMARKS',
+    rsExportTitle: 'EXPORT & SEND',
+    rsExportNote: 'PDF and CSV in app language • Direct email share via Android',
+    rsNoStops: 'No stops yet',
+    rsMarkDepartureBtn: 'MARK DEPARTURE NOW',
+    rsLocationPrompt: 'Location (optional):',
+    confirmUnder15: 'Less than 15 min → 0h. Save anyway?',
+    confirmDeleteEntry: 'Delete this entry?',
+    confirmDeleteStop: 'Delete this stop?',
+    confirmCloseActive: 'A stop is open. Mark departure now and create another?',
+    confirmExportActive: 'This sheet is IN PROGRESS (no CLOCK OUT). The PDF will use the current time as end time. Continue?',
+    alertEndAfterStart: 'End time must be after start time',
+    alertEndAfterStartCross: 'End time must be after start time (change end date if past midnight)',
+    alertEndTimeAfter: 'End time must be after start time',
+    alertNoRangeData: 'No entries in that range',
+    alertNeedArrival: 'Provide at least the arrival time',
+    alertNoPdfLib: 'PDF library not loaded. Check your connection.',
+    pdfTitle: 'DAILY ROUTE SHEET',
+    pdfClient: 'Client',
+    pdfDate: 'Date',
+    pdfDriverName: 'Driver Name',
+    pdfDriverNum: 'Driver #',
+    pdfStartTime: 'Start Time',
+    pdfEndTime: 'End Time',
+    pdfTotalHours: 'Total Hours',
+    pdfTruckUnit: 'Truck Unit #',
+    pdfTrailer: 'Trailer #',
+    pdfPlate: 'License Plate',
+    pdfKmStart: 'KM Start',
+    pdfKmEnd: 'KM End',
+    pdfTotalKm: 'Total KM',
+    pdfStops: 'STOPS',
+    pdfColNum: '#',
+    pdfColArrival: 'Arrival',
+    pdfColDeparture: 'Departure',
+    pdfColLocation: 'Location',
+    pdfColPallets: 'Pal.',
+    pdfColInvoice: 'Invoice #',
+    pdfColRemarks: 'Remarks',
+    pdfNoStops: 'No stops recorded',
+    pdfGenerated: 'Generated by Mis Horas',
+    pdfDriverSignature: 'Driver signature: ______________________________',
+    pdfDateLine: 'Date: ____________',
+    pdfInProgress: '(in progress)',
+  },
+  fr: {
+    appSubtitle: 'REGISTRE • ARRONDI 15 MIN',
+    active: 'ACTIF',
+    settingsTitle: 'PARAMÈTRES — VALEURS PAR DÉFAUT',
+    languageLabel: 'LANGUE',
+    save: 'ENREGISTRER',
+    cancel: 'ANNULER',
+    saveChanges: 'ENREGISTRER',
+    settingsHint: 'Ces valeurs se remplissent automatiquement dans les nouvelles feuilles de route. Modifiables à tout moment.',
+    placeholderDriverName: 'Nom du chauffeur',
+    placeholderDriverNum: '# Chauffeur',
+    placeholderDefaultService: 'Service par défaut',
+    placeholderTruckUnit: '# Unité camion',
+    placeholderTrailer: '# Remorque',
+    placeholderPlate: '# Plaque',
+    placeholderService: 'Service / Entreprise...',
+    placeholderNotes: 'Notes (optionnel) : raison du temps supplémentaire...',
+    clockIn: 'DÉBUT',
+    clockOut: 'FIN',
+    sinceLabel: 'depuis',
+    roundedLabel: 'arrondi',
+    openActiveRs: '📋 OUVRIR FEUILLE DE ROUTE EN COURS →',
+    activeRsWithStops: '📋 FEUILLE DE ROUTE • {n} {label} →',
+    stop1: 'ARRÊT',
+    stopMany: 'ARRÊTS',
+    today: "AUJOURD'HUI",
+    week: 'SEMAINE',
+    biweek: 'QUINZAINE',
+    all: 'TOUT',
+    totalToday: "TOTAL AUJOURD'HUI",
+    totalWeek: 'TOTAL SEMAINE',
+    totalBiweek: 'TOTAL QUINZAINE',
+    totalAll: 'TOTAL CUMULÉ',
+    decimal: 'DÉCIMAL',
+    exportForHR: '⬇ EXPORTER RAPPORT POUR RH',
+    exportRange: "PLAGE D'EXPORTATION",
+    thisWeek: 'Cette semaine',
+    thisBiweek: 'Cette quinzaine',
+    lastBiweek: 'Quinzaine passée',
+    from: 'DU',
+    to: 'AU',
+    generateHRCSV: 'GÉNÉRER CSV POUR RESSOURCES HUMAINES',
+    includesLabel: 'Inclut : Service • Date • Début • Fin • Heures • Notes • Type',
+    noEntries: 'Aucune entrée dans cette période',
+    tapForRouteSheet: 'Toucher pour feuille de route →',
+    edited: 'MODIFIÉ',
+    manual: 'MANUEL',
+    under15: '< 15m',
+    startLabel: 'DÉBUT',
+    endLabel: 'FIN',
+    endLabelHint: '(changer la date si après minuit)',
+    addRetroactive: '+ AJOUTER ENTRÉE RÉTROACTIVE',
+    retroactiveTitle: 'ENTRÉE RÉTROACTIVE',
+    placeholderRetroNotes: 'Notes : raison du temps supplémentaire, contexte...',
+    backupTitle: '🔒 SAUVEGARDE DES DONNÉES',
+    protectData: 'PROTÉGEZ VOS DONNÉES',
+    backupDescription: 'Exportez une sauvegarde JSON avec TOUTES vos données. Si vous perdez le cache ou changez de téléphone, restaurez ici sans rien perdre.',
+    downloadBackup: '⬇ TÉLÉCHARGER SAUVEGARDE',
+    restoreBackup: '⬆ RESTAURER SAUVEGARDE',
+    backupTip: '💡 Conseil : faire une sauvegarde chaque vendredi ou après ajout rétroactif',
+    backupDownloaded: '✓ Sauvegarde téléchargée — {n} entrées',
+    invalidBackup: 'Fichier de sauvegarde invalide',
+    backupMergePrompt: 'Vous avez {existing} entrées actuelles et la sauvegarde en a {backup}.\n\nFusionner ? (OK = Fusionner, Annuler = Tout remplacer)',
+    backupMerged: '✓ Fusionné : +{n} nouvelles entrées (total : {total})',
+    backupRestored: '✓ Restauré : {n} entrées',
+    backupError: 'Erreur de lecture du fichier : ',
+    rsTitle: 'FEUILLE DE ROUTE',
+    inProgress: 'EN COURS',
+    back: '← Retour',
+    rsClientDay: 'CLIENT ET JOURNÉE',
+    rsClientService: 'CLIENT / SERVICE',
+    rsStartTime: 'HEURE DÉBUT',
+    rsEndTime: 'HEURE FIN',
+    rsTotalLabel: 'Total',
+    rsInProgressTotal: '🟢 EN COURS • {hours} ({decimal}h arrondi)',
+    rsDriverVehicle: 'CHAUFFEUR ET VÉHICULE',
+    rsDriverName: 'NOM CHAUFFEUR',
+    rsDriverNum: '# CHAUFFEUR',
+    rsPlate: 'PLAQUE',
+    rsTruckUnit: '# UNITÉ CAMION',
+    rsTrailer: '# REMORQUE',
+    rsKmStart: 'KM DÉBUT',
+    rsKmEnd: 'KM FIN',
+    rsStops: 'ARRÊTS',
+    rsAtStop: 'À UN ARRÊT',
+    rsAtStopFrom: 'depuis',
+    rsLeaveNow: 'PARTIR MAINTENANT',
+    rsArrivedNow: '+ ARRIVÉ MAINTENANT',
+    rsNewStopNow: '+ NOUVEL ARRÊT (MAINTENANT)',
+    rsAddManual: '+ MANUEL',
+    rsEditStop: "MODIFIER L'ARRÊT",
+    rsArrival: 'ARRIVÉE',
+    rsDeparture: 'DÉPART',
+    rsLocation: 'ENDROIT',
+    rsPallets: 'PALETTES',
+    rsInvoice: 'N° FACTURE',
+    rsRemarks: 'REMARQUES',
+    rsExportTitle: 'EXPORTER ET ENVOYER',
+    rsExportNote: 'PDF et CSV dans la langue de l\'app • Partage direct par courriel via Android',
+    rsNoStops: 'Aucun arrêt pour le moment',
+    rsMarkDepartureBtn: 'MARQUER DÉPART MAINTENANT',
+    rsLocationPrompt: 'Endroit (optionnel) :',
+    confirmUnder15: 'Moins de 15 min → 0h. Enregistrer quand même ?',
+    confirmDeleteEntry: 'Supprimer cette entrée ?',
+    confirmDeleteStop: 'Supprimer cet arrêt ?',
+    confirmCloseActive: 'Un arrêt est ouvert. Marquer le départ maintenant et en créer un autre ?',
+    confirmExportActive: 'Cette feuille est EN COURS (pas de FIN). Le PDF utilisera l\'heure actuelle. Continuer ?',
+    alertEndAfterStart: 'La fin doit être après le début',
+    alertEndAfterStartCross: 'La fin doit être après le début (changer la date si après minuit)',
+    alertEndTimeAfter: 'L\'heure de fin doit être après l\'heure de début',
+    alertNoRangeData: 'Aucune entrée dans cette plage',
+    alertNeedArrival: 'Indiquez au moins l\'heure d\'arrivée',
+    alertNoPdfLib: 'Bibliothèque PDF non chargée. Vérifiez votre connexion.',
+    pdfTitle: 'FEUILLE DE ROUTE QUOTIDIENNE',
+    pdfClient: 'Client',
+    pdfDate: 'Date',
+    pdfDriverName: 'Nom Chauffeur',
+    pdfDriverNum: '# Chauffeur',
+    pdfStartTime: 'Heure Début',
+    pdfEndTime: 'Heure Fin',
+    pdfTotalHours: 'Total Heures',
+    pdfTruckUnit: '# Unité Camion',
+    pdfTrailer: '# Remorque',
+    pdfPlate: 'Plaque',
+    pdfKmStart: 'KM Début',
+    pdfKmEnd: 'KM Fin',
+    pdfTotalKm: 'Total KM',
+    pdfStops: 'ARRÊTS',
+    pdfColNum: '#',
+    pdfColArrival: 'Arrivée',
+    pdfColDeparture: 'Départ',
+    pdfColLocation: 'Endroit',
+    pdfColPallets: 'Pal.',
+    pdfColInvoice: 'N° Facture',
+    pdfColRemarks: 'Remarques',
+    pdfNoStops: 'Aucun arrêt enregistré',
+    pdfGenerated: 'Généré par Mis Horas',
+    pdfDriverSignature: 'Signature chauffeur : ______________________________',
+    pdfDateLine: 'Date : ____________',
+    pdfInProgress: '(en cours)',
+  }
+};
+
+const LANG_KEY = 'mishoras_lang';
+let currentLang = 'es';
+
+function detectLang() {
+  try {
+    const stored = localStorage.getItem(LANG_KEY);
+    if (stored && TRANSLATIONS[stored]) return stored;
+  } catch {}
+  const browser = (navigator.language || 'es').toLowerCase().slice(0, 2);
+  return TRANSLATIONS[browser] ? browser : 'es';
+}
+
+function t(key, vars = {}) {
+  const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.es;
+  let text = dict[key];
+  if (text === undefined) text = TRANSLATIONS.es[key] || key;
+  return String(text).replace(/\{(\w+)\}/g, (_, k) => vars[k] !== undefined ? vars[k] : `{${k}}`);
+}
+
+function setLang(lang) {
+  if (!TRANSLATIONS[lang]) return;
+  currentLang = lang;
+  try { localStorage.setItem(LANG_KEY, lang); } catch {}
+  applyStaticTranslations();
+  render();
+  // Re-render any open route sheet
+  if (currentRsEntryId) {
+    const entryId = currentRsEntryId;
+    closeRouteSheet();
+    setTimeout(() => openRouteSheet(entryId), 50);
+  }
+}
+
+function applyStaticTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  // Update lang selector visual state
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+}
+
+// Locale helpers
+function getLocale() {
+  return { es: 'es-ES', en: 'en-US', fr: 'fr-CA' }[currentLang] || 'es-ES';
+}
+function uses24h() {
+  return currentLang === 'fr';
+}
+
 // ─── State ───
 let entries = [];
 let activeSession = null;
@@ -716,10 +1239,10 @@ const pad = (n) => String(n).padStart(2, '0');
 const roundTo15 = (h) => { const r = Math.round(h * 4) / 4; return r < 0.25 ? 0 : r; };
 const calcHours = (s, e) => Math.max(0, (new Date(e) - new Date(s)) / 3600000);
 const formatHours = (h) => { if (h === 0) return '0h 00m'; const hrs = Math.floor(h); const mins = Math.round((h - hrs) * 60); return `${hrs}h ${pad(mins)}m`; };
-const formatTime = (d) => new Date(d).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: true });
+const formatTime = (d) => new Date(d).toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit', hour12: !uses24h() });
 const formatTime24 = (d) => { const x = new Date(d); return `${pad(x.getHours())}:${pad(x.getMinutes())}`; };
-const formatDate = (d) => new Date(d).toLocaleDateString('es', { weekday: 'short', month: 'short', day: 'numeric' });
-const formatDateFull = (d) => new Date(d).toLocaleDateString('es', { year: 'numeric', month: '2-digit', day: '2-digit' });
+const formatDate = (d) => new Date(d).toLocaleDateString(getLocale(), { weekday: 'short', month: 'short', day: 'numeric' });
+const formatDateFull = (d) => new Date(d).toLocaleDateString(getLocale(), { year: 'numeric', month: '2-digit', day: '2-digit' });
 const dateKey = (d) => { const x = new Date(d); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; };
 const todayKey = () => dateKey(new Date());
 
@@ -760,7 +1283,22 @@ function toggleClock() {
 function clockIn() {
   const svc = document.getElementById('serviceInput').value.trim();
   const note = document.getElementById('noteInput').value.trim();
-  activeSession = { start: new Date().toISOString(), id: Date.now(), service: svc, note: note };
+  activeSession = {
+    start: new Date().toISOString(),
+    id: Date.now(),
+    service: svc,
+    note: note,
+    rs: {
+      driver_name: settings.driver_name || '',
+      driver_num: settings.driver_num || '',
+      truck_unit: settings.truck_unit || '',
+      trailer: settings.trailer || '',
+      plate: settings.plate || '',
+      km_start: '',
+      km_end: '',
+      stops: []
+    }
+  };
   saveData();
   startTimer();
   render();
@@ -770,7 +1308,7 @@ function clockOut() {
   const rawH = calcHours(activeSession.start, new Date().toISOString());
   const rounded = roundTo15(rawH);
   const note = document.getElementById('noteInput').value.trim() || activeSession.note || '';
-  if (rounded === 0 && !confirm('Menos de 15 min → 0h. ¿Guardar de todas formas?')) {
+  if (rounded === 0 && !confirm(t('confirmUnder15'))) {
     activeSession = null; saveData(); stopTimer(); render(); return;
   }
   entries.unshift({ ...activeSession, end: new Date().toISOString(), rawHours: rawH, hours: rounded, note });
@@ -790,8 +1328,12 @@ function updateLiveTimer() {
   const raw = calcHours(activeSession.start, new Date().toISOString());
   const rounded = roundTo15(raw);
   document.getElementById('clockTime').textContent = formatHours(raw);
-  document.getElementById('clockRounded').textContent = `≈ ${rounded.toFixed(2)}h redondeado`;
+  document.getElementById('clockRounded').textContent = `≈ ${rounded.toFixed(2)}h ${t('roundedLabel')}`;
   updateSummary();
+  // If route sheet open for active session, update its total live
+  if (isCurrentRsActive()) {
+    updateTotalDisplay(activeSession);
+  }
 }
 
 // ─── Views ───
@@ -817,8 +1359,8 @@ function updateSummary() {
   const filtered = filterEntries();
   let total = filtered.reduce((s, e) => s + (e.hours || 0), 0);
   if (activeSession) total += roundTo15(calcHours(activeSession.start, new Date().toISOString()));
-  const labels = { today: 'HOY', week: 'SEMANA', biweek: 'QUINCENA', all: 'ACUMULADO' };
-  document.getElementById('summaryLabel').textContent = 'TOTAL ' + labels[currentView];
+  const labels = { today: t('totalToday'), week: t('totalWeek'), biweek: t('totalBiweek'), all: t('totalAll') };
+  document.getElementById('summaryLabel').textContent = labels[currentView];
   document.getElementById('summaryTotal').textContent = formatHours(total);
   document.getElementById('summaryDecimal').textContent = total.toFixed(2) + 'h';
 }
@@ -842,9 +1384,9 @@ function render() {
 
   if (activeSession) {
     btn.className = 'clock-btn in';
-    label.textContent = 'SALIDA';
+    label.textContent = t('clockOut');
     time.style.fontSize = '26px';
-    since.textContent = 'desde ' + formatTime(activeSession.start);
+    since.textContent = t('sinceLabel') + ' ' + formatTime(activeSession.start);
     since.classList.remove('hidden');
     rounded.classList.remove('hidden');
     if (activeSession.service) { svcLabel.textContent = activeSession.service; svcLabel.classList.remove('hidden'); }
@@ -856,7 +1398,7 @@ function render() {
     updateLiveTimer();
   } else {
     btn.className = 'clock-btn out';
-    label.textContent = 'ENTRADA';
+    label.textContent = t('clockIn');
     time.textContent = '▶';
     time.style.fontSize = '34px';
     since.classList.add('hidden');
@@ -872,6 +1414,18 @@ function render() {
   // Service chips
   renderServiceChips('serviceChips', document.getElementById('serviceInput'));
   renderServiceChips('manualServiceChips', document.getElementById('manualService'));
+
+  // Active route sheet button
+  const activeRsBtn = document.getElementById('activeRsBtn');
+  if (activeSession) {
+    const stopCount = activeSession.rs?.stops?.length || 0;
+    activeRsBtn.textContent = stopCount > 0
+      ? t('activeRsWithStops', { n: stopCount, label: stopCount === 1 ? t('stop1') : t('stopMany') })
+      : t('openActiveRs');
+    activeRsBtn.classList.remove('hidden');
+  } else {
+    activeRsBtn.classList.add('hidden');
+  }
 
   // Summary
   updateSummary();
@@ -899,7 +1453,7 @@ function renderEntries() {
   const container = document.getElementById('entriesContainer');
 
   if (filtered.length === 0 && !activeSession) {
-    container.innerHTML = '<div class="empty">Sin registros en este período</div>';
+    container.innerHTML = '<div class="empty">' + t('noEntries') + '</div>';
     return;
   }
 
@@ -931,10 +1485,10 @@ function renderEntry(e) {
       <div class="entry-left">
         ${e.service ? `<span class="badge-service">${esc(e.service)}</span>` : ''}
         <span class="entry-time">${formatTime(e.start)} → ${formatTime(e.end)}${crosses ? '<span class="midnight-badge">+1d</span>' : ''}</span>
-        ${e.edited ? '<span class="badge badge-edited">EDITADO</span>' : ''}
-        ${e.manual ? '<span class="badge badge-manual">MANUAL</span>' : ''}
-        ${e.hours === 0 ? '<span class="badge badge-under15">&lt; 15m</span>' : ''}
-        ${stopCount > 0 ? `<span class="entry-rs-badge">📋 ${stopCount} ${stopCount === 1 ? 'parada' : 'paradas'}</span>` : ''}
+        ${e.edited ? '<span class="badge badge-edited">' + t('edited') + '</span>' : ''}
+        ${e.manual ? '<span class="badge badge-manual">' + t('manual') + '</span>' : ''}
+        ${e.hours === 0 ? '<span class="badge badge-under15">' + t('under15') + '</span>' : ''}
+        ${stopCount > 0 ? `<span class="entry-rs-badge">📋 ${stopCount} ${stopCount === 1 ? t('stop1') : t('stopMany')}</span>` : ''}
       </div>
       <div class="entry-right">
         <span class="entry-hours">${formatHours(e.hours)}</span>
@@ -944,17 +1498,17 @@ function renderEntry(e) {
       </div>
     </div>
     ${e.note ? `<div class="entry-note">📝 ${esc(e.note)}</div>` : ''}
-    <div style="font-size:10px;color:var(--w20);margin-top:6px;text-align:right">Toca para hoja de ruta →</div>
+    <div style="font-size:10px;color:var(--w20);margin-top:6px;text-align:right">${t('tapForRouteSheet')}</div>
   </div>`;
 }
 
 function renderEditForm(e) {
   const s = new Date(e.start), en = new Date(e.end);
   return `<div class="entry"><div class="edit-form">
-    <input type="text" class="input-base" id="editSvc" value="${esc(e.service||'')}" placeholder="Servicio..." style="font-size:12px">
+    <input type="text" class="input-base" id="editSvc" value="${esc(e.service||'')}" placeholder="${t('placeholderService').replace(/"/g, '&quot;')}" style="font-size:12px">
     <div class="edit-row">
       <div>
-        <div class="edit-section-label">INICIO</div>
+        <div class="edit-section-label">${t('startLabel')}</div>
         <div class="edit-time-group">
           <input type="date" class="date-input" id="editSD" value="${dateKey(s)}">
           <input type="number" min="0" max="23" class="time-input" id="editSH" value="${pad(s.getHours())}">
@@ -964,7 +1518,7 @@ function renderEditForm(e) {
       </div>
       <div style="color:rgba(255,255,255,0.12);padding-top:14px">→</div>
       <div>
-        <div class="edit-section-label">FIN</div>
+        <div class="edit-section-label">${t('endLabel')}</div>
         <div class="edit-time-group">
           <input type="date" class="date-input" id="editED" value="${dateKey(en)}">
           <input type="number" min="0" max="23" class="time-input" id="editEH" value="${pad(en.getHours())}">
@@ -973,10 +1527,10 @@ function renderEditForm(e) {
         </div>
       </div>
     </div>
-    <input type="text" class="input-base" id="editNote" value="${esc(e.note||'')}" placeholder="Notas..." style="font-size:11px">
+    <input type="text" class="input-base" id="editNote" value="${esc(e.note||'')}" placeholder="${t('placeholderNotes').replace(/"/g, '&quot;')}" style="font-size:11px">
     <div class="edit-btns">
-      <button class="edit-save" onclick="saveEdit(${e.id})">GUARDAR</button>
-      <button class="edit-cancel" onclick="cancelEdit()">CANCELAR</button>
+      <button class="edit-save" onclick="saveEdit(${e.id})">${t('save')}</button>
+      <button class="edit-cancel" onclick="cancelEdit()">${t('cancel')}</button>
     </div>
   </div></div>`;
 }
@@ -985,7 +1539,7 @@ function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 
 // ─── Actions ───
 function deleteEntry(id) {
-  if (!confirm('¿Borrar este registro?')) return;
+  if (!confirm(t('confirmDeleteEntry'))) return;
   entries = entries.filter(e => e.id !== id);
   saveData(); render();
 }
@@ -1000,7 +1554,7 @@ function saveEdit(id) {
   const em = document.getElementById('editEM').value.padStart(2,'0');
   const s = new Date(`${sd}T${sh}:${sm}:00`);
   const e = new Date(`${ed}T${eh}:${em}:00`);
-  if (e <= s) { alert('La salida debe ser después de la entrada'); return; }
+  if (e <= s) { alert(t('alertEndAfterStart')); return; }
   const rawH = calcHours(s, e);
   const svc = document.getElementById('editSvc').value.trim();
   const note = document.getElementById('editNote').value.trim();
@@ -1032,7 +1586,7 @@ function saveManual() {
   const em = document.getElementById('manualEndM').value.padStart(2,'0');
   const s = new Date(`${sd}T${sh}:${sm}:00`);
   const e = new Date(`${ed}T${eh}:${em}:00`);
-  if (e <= s) { alert('La salida debe ser después de la entrada (cambia la fecha de fin si cruzó medianoche)'); return; }
+  if (e <= s) { alert(t('alertEndAfterStartCross')); return; }
   const rawH = calcHours(s, e);
   entries.unshift({
     id: Date.now(), start: s.toISOString(), end: e.toISOString(),
@@ -1071,7 +1625,7 @@ function doExport() {
   if (from) data = data.filter(e => dateKey(e.start) >= from);
   if (to) data = data.filter(e => dateKey(e.start) <= to);
   data.sort((a, b) => new Date(a.start) - new Date(b.start));
-  if (!data.length) { alert('Sin registros en ese rango'); return; }
+  if (!data.length) { alert(t('alertNoRangeData')); return; }
 
   const rows = [['Servicio','Fecha','Entrada','Salida','Horas (decimal)','Horas (HH:MM)','Notas','Tipo']];
   let total = 0;
@@ -1119,7 +1673,7 @@ function backupData() {
   a.download = `mishoras_respaldo_${dateKey(new Date())}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  document.getElementById('backupStatus').textContent = '✓ Respaldo descargado — ' + entries.length + ' registros';
+  document.getElementById('backupStatus').textContent = t('backupDownloaded', { n: entries.length });
   document.getElementById('backupStatus').style.color = 'rgba(0,255,136,0.6)';
 }
 function restoreData(event) {
@@ -1130,20 +1684,20 @@ function restoreData(event) {
     try {
       const backup = JSON.parse(e.target.result);
       if (!backup.entries || !Array.isArray(backup.entries)) {
-        alert('Archivo de respaldo inválido');
+        alert(t('invalidBackup'));
         return;
       }
       const existing = entries.length;
       if (existing > 0) {
-        const merge = confirm(`Tienes ${existing} registros actuales y el respaldo tiene ${backup.entries.length}.\n\n¿Combinar ambos? (OK = Combinar, Cancelar = Reemplazar todo)`);
+        const merge = confirm(t('backupMergePrompt', { existing, backup: backup.entries.length }));
         if (merge) {
           const existingIds = new Set(entries.map(x => x.id));
           const newOnes = backup.entries.filter(x => !existingIds.has(x.id));
           entries = [...entries, ...newOnes].sort((a, b) => new Date(b.start) - new Date(a.start));
-          document.getElementById('backupStatus').textContent = `✓ Combinado: +${newOnes.length} registros nuevos (total: ${entries.length})`;
+          document.getElementById('backupStatus').textContent = t('backupMerged', { n: newOnes.length, total: entries.length });
         } else {
           entries = backup.entries;
-          document.getElementById('backupStatus').textContent = `✓ Restaurado: ${entries.length} registros`;
+          document.getElementById('backupStatus').textContent = t('backupRestored', { n: entries.length });
         }
       } else {
         entries = backup.entries;
@@ -1154,7 +1708,7 @@ function restoreData(event) {
       render();
       document.getElementById('backupStatus').style.color = 'rgba(0,255,136,0.6)';
     } catch (err) {
-      alert('Error leyendo el archivo: ' + err.message);
+      alert(t('backupError') + err.message);
     }
   };
   reader.readAsText(file);
@@ -1203,16 +1757,30 @@ function ensureRouteSheet(entry) {
   return entry.rs;
 }
 
+function openActiveRouteSheet() {
+  if (!activeSession) return;
+  openRouteSheet(activeSession.id);
+}
+
 function openRouteSheet(entryId) {
-  const entry = entries.find(e => e.id === entryId);
+  // Check active session first
+  let entry = null;
+  if (activeSession && activeSession.id === entryId) {
+    entry = activeSession;
+  } else {
+    entry = entries.find(e => e.id === entryId);
+  }
   if (!entry) return;
   currentRsEntryId = entryId;
   ensureRouteSheet(entry);
+  const isActive = isCurrentRsActive();
 
-  document.getElementById('rsTopDate').textContent = formatDate(entry.start).toUpperCase();
+  document.getElementById('rsTopDate').textContent = formatDate(entry.start).toUpperCase() + (isActive ? ' • ' + t('inProgress') : '');
   document.getElementById('rsClient').value = entry.service || '';
   document.getElementById('rsStartTime').value = formatTime24(entry.start);
-  document.getElementById('rsEndTime').value = formatTime24(entry.end);
+  document.getElementById('rsEndTime').value = isActive ? '' : formatTime24(entry.end);
+  document.getElementById('rsEndTime').disabled = isActive;
+  document.getElementById('rsEndTime').style.opacity = isActive ? '0.4' : '1';
   document.getElementById('rsDriverName').value = entry.rs.driver_name || '';
   document.getElementById('rsDriverNum').value = entry.rs.driver_num || '';
   document.getElementById('rsPlate').value = entry.rs.plate || '';
@@ -1253,7 +1821,11 @@ window.addEventListener('popstate', () => {
 });
 
 function getCurrentRsEntry() {
+  if (activeSession && activeSession.id === currentRsEntryId) return activeSession;
   return entries.find(e => e.id === currentRsEntryId);
+}
+function isCurrentRsActive() {
+  return activeSession && activeSession.id === currentRsEntryId;
 }
 
 function updateRouteSheet() {
@@ -1274,13 +1846,22 @@ function updateRouteSheetTimes() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
   const startStr = document.getElementById('rsStartTime').value;
-  const endStr = document.getElementById('rsEndTime').value;
-  if (!startStr || !endStr) return;
+  if (!startStr) return;
   const sd = dateKey(entry.start);
-  const ed = dateKey(entry.end);
   const newStart = new Date(`${sd}T${startStr}:00`);
+
+  if (isCurrentRsActive()) {
+    // Only update start time; end is "now" automatically
+    entry.start = newStart.toISOString();
+    saveData();
+    updateTotalDisplay(entry);
+    return;
+  }
+  const endStr = document.getElementById('rsEndTime').value;
+  if (!endStr) return;
+  const ed = dateKey(entry.end);
   const newEnd = new Date(`${ed}T${endStr}:00`);
-  if (newEnd <= newStart) { alert('La hora de fin debe ser después de la hora de inicio'); return; }
+  if (newEnd <= newStart) { alert(t('alertEndTimeAfter')); return; }
   entry.start = newStart.toISOString();
   entry.end = newEnd.toISOString();
   const raw = calcHours(entry.start, entry.end);
@@ -1292,7 +1873,13 @@ function updateRouteSheetTimes() {
 }
 
 function updateTotalDisplay(entry) {
-  document.getElementById('rsTotalDisplay').textContent = `Total: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`;
+  if (isCurrentRsActive()) {
+    const rawH = calcHours(entry.start, new Date().toISOString());
+    const rounded = roundTo15(rawH);
+    document.getElementById('rsTotalDisplay').textContent = t('rsInProgressTotal', { hours: formatHours(rawH), decimal: rounded.toFixed(2) });
+  } else {
+    document.getElementById('rsTotalDisplay').textContent = `${t('rsTotalLabel')}: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`;
+  }
 }
 
 // ─── Stops ───
@@ -1310,21 +1897,21 @@ function renderStops() {
     banner.innerHTML = `
       <div class="rs-active-stop-banner">
         <div>
-          <div class="rs-active-stop-banner-text">EN PARADA — ${esc(active.location || 'Sin ubicación')}</div>
-          <div style="font-size:10px;color:var(--w50);margin-top:2px">desde ${formatTime(active.arrived)}</div>
+          <div class="rs-active-stop-banner-text">${t('rsAtStop')} — ${esc(active.location || '—')}</div>
+          <div style="font-size:10px;color:var(--w50);margin-top:2px">${t('rsAtStopFrom')} ${formatTime(active.arrived)}</div>
         </div>
-        <button class="rs-stop-action-btn depart" onclick="markDepartureNow(${active.id})">SALIR AHORA</button>
+        <button class="rs-stop-action-btn depart" onclick="markDepartureNow(${active.id})">${t('rsLeaveNow')}</button>
       </div>
     `;
-    document.getElementById('rsAddNowBtn').textContent = '+ NUEVA PARADA (AHORA)';
+    document.getElementById('rsAddNowBtn').textContent = t('rsNewStopNow');
   } else {
     banner.innerHTML = '';
-    document.getElementById('rsAddNowBtn').textContent = '+ LLEGUÉ AHORA';
+    document.getElementById('rsAddNowBtn').textContent = t('rsArrivedNow');
   }
 
   const list = document.getElementById('rsStopsList');
   if (stops.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px 0;color:var(--w20);font-size:12px">Sin paradas aún</div>';
+    list.innerHTML = '<div style="text-align:center;padding:20px 0;color:var(--w20);font-size:12px">' + t('rsNoStops') + '</div>';
     return;
   }
   list.innerHTML = stops.map((s, i) => renderStop(s, i)).join('');
@@ -1351,7 +1938,7 @@ function renderStop(stop, idx) {
       ${stop.invoice ? `<span># ${esc(stop.invoice)}</span>` : ''}
     </div>` : ''}
     ${stop.remarks ? `<div class="rs-stop-remarks">${esc(stop.remarks)}</div>` : ''}
-    ${isActive ? `<div class="rs-stop-actions"><button class="rs-stop-action-btn depart" onclick="markDepartureNow(${stop.id})">MARCAR SALIDA AHORA</button></div>` : ''}
+    ${isActive ? `<div class="rs-stop-actions"><button class="rs-stop-action-btn depart" onclick="markDepartureNow(${stop.id})">${t('rsMarkDepartureBtn')}</button></div>` : ''}
   </div>`;
 }
 
@@ -1360,10 +1947,10 @@ function addStopNow() {
   if (!entry) return;
   // Close any open active stop first
   const active = entry.rs.stops.find(s => s.arrived && !s.departed);
-  if (active && !confirm('Hay una parada abierta. ¿Marcarle salida ahora y crear otra?')) return;
+  if (active && !confirm(t('confirmCloseActive'))) return;
   if (active) active.departed = new Date().toISOString();
   // Ask for location
-  const loc = prompt('Ubicación / Endroit (opcional):', '');
+  const loc = prompt(t('rsLocationPrompt'), '');
   entry.rs.stops.push({
     id: Date.now(),
     arrived: new Date().toISOString(),
@@ -1388,7 +1975,7 @@ function markDepartureNow(stopId) {
 }
 
 function deleteStop(stopId) {
-  if (!confirm('¿Borrar esta parada?')) return;
+  if (!confirm(t('confirmDeleteStop'))) return;
   const entry = getCurrentRsEntry();
   if (!entry) return;
   entry.rs.stops = entry.rs.stops.filter(s => s.id !== stopId);
@@ -1412,7 +1999,7 @@ function saveManualStop() {
   if (!entry) return;
   const arr = document.getElementById('msArrived').value;
   const dep = document.getElementById('msDeparted').value;
-  if (!arr) { alert('Indica al menos la hora de llegada'); return; }
+  if (!arr) { alert(t('alertNeedArrival')); return; }
   const date = dateKey(entry.start);
   const arrivedISO = new Date(`${date}T${arr}:00`).toISOString();
   let departedISO = null;
@@ -1490,17 +2077,23 @@ function saveStopEdit() {
 }
 
 // ─── PDF Export ───
-function formatTime12English(d) {
-  return new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+function formatPdfTime(d) {
+  return new Date(d).toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit', hour12: !uses24h() });
 }
-function formatDateEnglish(d) {
-  return new Date(d).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+function formatPdfDate(d) {
+  return new Date(d).toLocaleDateString(getLocale(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 async function exportRouteSheetPDF() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
-  if (!window.jspdf) { alert('PDF library no cargada. Verifica tu conexión.'); return; }
+  if (!window.jspdf) { alert(t('alertNoPdfLib')); return; }
+
+  const isActive = isCurrentRsActive();
+  if (isActive && !confirm(t('confirmExportActive'))) return;
+  // For active session, use now as effective end time
+  const effectiveEnd = isActive ? new Date().toISOString() : entry.end;
+  const effectiveHours = isActive ? roundTo15(calcHours(entry.start, effectiveEnd)) : entry.hours;
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'pt', 'a4');
@@ -1513,14 +2106,14 @@ async function exportRouteSheetPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
   doc.setTextColor(20);
-  doc.text('DAILY ROUTE SHEET', M, y + 18);
+  doc.text(t('pdfTitle'), M, y + 18);
   y += 26;
 
   // Date
   doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(80);
-  doc.text(formatDateEnglish(entry.start), M, y + 14);
+  doc.text(formatPdfDate(entry.start), M, y + 14);
   y += 28;
 
   // Underline
@@ -1537,19 +2130,19 @@ async function exportRouteSheetPDF() {
   const totalKm = (entry.rs.km_end && entry.rs.km_start) ? (Number(entry.rs.km_end) - Number(entry.rs.km_start)) : '';
 
   const headerData = [
-    ['Client', entry.service || '—'],
-    ['Driver Name', entry.rs.driver_name || '—'],
-    ['Start Time', formatTime12English(entry.start)],
-    ['End Time', formatTime12English(entry.end)],
-    ['Total Hours', `${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`],
-    ['Driver #', entry.rs.driver_num || '—'],
-    ['Truck Unit #', entry.rs.truck_unit || '—'],
-    ['Trailer #', entry.rs.trailer || '—'],
-    ['License Plate', entry.rs.plate || '—'],
+    [t('pdfClient'), entry.service || '—'],
+    [t('pdfDriverName'), entry.rs.driver_name || '—'],
+    [t('pdfStartTime'), formatPdfTime(entry.start)],
+    [t('pdfEndTime'), formatPdfTime(effectiveEnd) + (isActive ? ' ' + t('pdfInProgress') : '')],
+    [t('pdfTotalHours'), `${formatHours(effectiveHours)} (${effectiveHours.toFixed(2)}h)`],
+    [t('pdfDriverNum'), entry.rs.driver_num || '—'],
+    [t('pdfTruckUnit'), entry.rs.truck_unit || '—'],
+    [t('pdfTrailer'), entry.rs.trailer || '—'],
+    [t('pdfPlate'), entry.rs.plate || '—'],
     ['', ''],
-    ['KM Start', entry.rs.km_start || '—'],
-    ['KM End', entry.rs.km_end || '—'],
-    ['Total KM', totalKm !== '' ? String(totalKm) : '—'],
+    [t('pdfKmStart'), entry.rs.km_start || '—'],
+    [t('pdfKmEnd'), entry.rs.km_end || '—'],
+    [t('pdfTotalKm'), totalKm !== '' ? String(totalKm) : '—'],
     ['', '']
   ];
 
@@ -1578,7 +2171,7 @@ async function exportRouteSheetPDF() {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
   doc.setTextColor(20);
-  doc.text('STOPS', M, y);
+  doc.text(t('pdfStops'), M, y);
   y += 10;
   doc.setDrawColor(40);
   doc.setLineWidth(1);
@@ -1588,7 +2181,7 @@ async function exportRouteSheetPDF() {
   // Stops table headers
   const colWidths = [22, 55, 55, 135, 35, 75, 138]; // # Arr Dep Loc Pal Inv Rem
   const totalColsW = colWidths.reduce((a,b)=>a+b,0);
-  const headers = ['#', 'Arrival', 'Departure', 'Location', 'Pal.', 'Invoice #', 'Remarks'];
+  const headers = [t('pdfColNum'), t('pdfColArrival'), t('pdfColDeparture'), t('pdfColLocation'), t('pdfColPallets'), t('pdfColInvoice'), t('pdfColRemarks')];
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
@@ -1614,7 +2207,7 @@ async function exportRouteSheetPDF() {
   if (stops.length === 0) {
     doc.setTextColor(150);
     doc.setFont('helvetica', 'italic');
-    doc.text('No stops recorded', M + 4, y + 14);
+    doc.text(t('pdfNoStops'), M + 4, y + 14);
     y += 22;
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(0);
@@ -1634,8 +2227,8 @@ async function exportRouteSheetPDF() {
 
       const rowData = [
         String(idx + 1),
-        s.arrived ? formatTime12English(s.arrived) : '—',
-        s.departed ? formatTime12English(s.departed) : '—',
+        s.arrived ? formatPdfTime(s.arrived) : '—',
+        s.departed ? formatPdfTime(s.departed) : '—',
         null, // location handled separately for wrap
         s.pallets || '',
         s.invoice || '',
@@ -1671,11 +2264,11 @@ async function exportRouteSheetPDF() {
   y = H - 60;
   doc.setFontSize(9);
   doc.setTextColor(120);
-  doc.text(`Generated by Mis Horas — ${new Date().toLocaleString('en-US')}`, M, y);
+  doc.text(`${t('pdfGenerated')} — ${new Date().toLocaleString(getLocale())}`, M, y);
   y += 16;
   doc.setTextColor(80);
-  doc.text('Driver signature: ______________________________', M, y);
-  doc.text('Date: ____________', W - M - 100, y);
+  doc.text(t('pdfDriverSignature'), M, y);
+  doc.text(t('pdfDateLine'), W - M - 100, y);
 
   // Output
   const fileName = `route-sheet_${dateKey(entry.start)}_${(entry.service || 'shift').replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
@@ -1688,8 +2281,8 @@ async function exportRouteSheetPDF() {
     try {
       await navigator.share({
         files: [file],
-        title: `Route Sheet — ${formatDateEnglish(entry.start)}`,
-        text: `Daily route sheet for ${entry.service || 'shift'} on ${formatDateEnglish(entry.start)}`
+        title: `${t('rsTitle')} — ${formatPdfDate(entry.start)}`,
+        text: `${t('pdfTitle')} — ${entry.service || ''} — ${formatPdfDate(entry.start)}`
       });
       return;
     } catch (err) {
@@ -1704,30 +2297,33 @@ async function exportRouteSheetPDF() {
 function exportRouteSheetCSV() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
+  const isActive = isCurrentRsActive();
+  const effectiveEnd = isActive ? new Date().toISOString() : entry.end;
+  const effectiveHours = isActive ? roundTo15(calcHours(entry.start, effectiveEnd)) : entry.hours;
   const rs = entry.rs || {};
   const stops = [...(rs.stops || [])].sort((a, b) => new Date(a.arrived) - new Date(b.arrived));
   const totalKm = (rs.km_end && rs.km_start) ? (Number(rs.km_end) - Number(rs.km_start)) : '';
 
   const rows = [];
   // Header info
-  rows.push(['DAILY ROUTE SHEET']);
+  rows.push([t('pdfTitle') + (isActive ? ' (' + t('inProgress') + ')' : '')]);
   rows.push([]);
-  rows.push(['Client', entry.service || '']);
-  rows.push(['Date', formatDateFull(entry.start)]);
-  rows.push(['Driver Name', rs.driver_name || '']);
-  rows.push(['Driver #', rs.driver_num || '']);
-  rows.push(['Start Time', formatTime24(entry.start)]);
-  rows.push(['End Time', formatTime24(entry.end)]);
-  rows.push(['Total Hours', entry.hours.toFixed(2)]);
-  rows.push(['Truck Unit #', rs.truck_unit || '']);
-  rows.push(['Trailer #', rs.trailer || '']);
-  rows.push(['License Plate', rs.plate || '']);
-  rows.push(['KM Start', rs.km_start || '']);
-  rows.push(['KM End', rs.km_end || '']);
-  rows.push(['Total KM', totalKm]);
+  rows.push([t('pdfClient'), entry.service || '']);
+  rows.push([t('pdfDate'), formatDateFull(entry.start)]);
+  rows.push([t('pdfDriverName'), rs.driver_name || '']);
+  rows.push([t('pdfDriverNum'), rs.driver_num || '']);
+  rows.push([t('pdfStartTime'), formatTime24(entry.start)]);
+  rows.push([t('pdfEndTime'), formatTime24(effectiveEnd) + (isActive ? ' ' + t('pdfInProgress') : '')]);
+  rows.push([t('pdfTotalHours'), effectiveHours.toFixed(2)]);
+  rows.push([t('pdfTruckUnit'), rs.truck_unit || '']);
+  rows.push([t('pdfTrailer'), rs.trailer || '']);
+  rows.push([t('pdfPlate'), rs.plate || '']);
+  rows.push([t('pdfKmStart'), rs.km_start || '']);
+  rows.push([t('pdfKmEnd'), rs.km_end || '']);
+  rows.push([t('pdfTotalKm'), totalKm]);
   rows.push([]);
-  rows.push(['STOPS']);
-  rows.push(['#', 'Arrival', 'Departure', 'Location', 'Pallets', 'Invoice #', 'Remarks']);
+  rows.push([t('pdfStops')]);
+  rows.push([t('pdfColNum'), t('pdfColArrival'), t('pdfColDeparture'), t('pdfColLocation'), t('rsPallets'), t('pdfColInvoice'), t('pdfColRemarks')]);
   stops.forEach((s, i) => {
     rows.push([
       i + 1,
@@ -1751,6 +2347,8 @@ function exportRouteSheetCSV() {
 }
 
 // ─── Init ───
+currentLang = detectLang();
+applyStaticTranslations();
 loadData();
 render();
 
