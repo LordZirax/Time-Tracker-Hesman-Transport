@@ -10,6 +10,7 @@
 <title>Mis Horas</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
   --bg: #0a0a0f;
@@ -259,6 +260,118 @@ input[type=number] { -moz-appearance: textfield; }
 #backupPanel { display: none; margin: 10px 20px 20px; }
 #backupPanel.open { display: block; }
 
+/* Settings */
+.settings-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--w50);
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 4px;
+}
+#settingsPanel { display: none; margin: 0 20px 16px; padding: 16px; background: rgba(0,200,255,0.04); border: 1px solid rgba(0,200,255,0.12); border-radius: 12px; animation: slideIn 0.2s ease; }
+#settingsPanel.open { display: block; }
+.settings-title { font-size: 11px; color: var(--w40); letter-spacing: 1px; margin-bottom: 14px; font-weight: 600; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.settings-grid .input-base { font-size: 12px; }
+.settings-grid-full .input-base { font-size: 12px; margin-bottom: 8px; }
+.settings-hint { font-size: 10px; color: var(--w30); margin-top: 8px; line-height: 1.4; }
+
+/* Entry row tappable */
+.entry { cursor: pointer; transition: background 0.15s; position: relative; }
+.entry:active { background: rgba(255,255,255,0.04); }
+.entry-rs-badge {
+  font-size: 9px; padding: 2px 6px; background: rgba(100,200,255,0.1);
+  border: 1px solid rgba(100,200,255,0.25); border-radius: 4px;
+  color: rgba(100,200,255,0.8); font-weight: 600;
+}
+
+/* Route Sheet Overlay */
+.rs-overlay {
+  position: fixed; inset: 0; background: var(--bg); z-index: 100;
+  overflow-y: auto; animation: slideUp 0.25s ease;
+  max-width: 540px; margin: 0 auto;
+  display: none;
+}
+.rs-overlay.open { display: block; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.rs-topbar {
+  position: sticky; top: 0; z-index: 10; background: var(--bg);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.rs-back {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--w12);
+  border-radius: 8px; padding: 8px 14px; color: #fff; font-size: 13px;
+  cursor: pointer;
+}
+.rs-topbar-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: #fff; }
+.rs-topbar-date { font-size: 11px; color: var(--w40); letter-spacing: 0.5px; }
+
+.rs-section { margin: 20px; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
+.rs-section-title { font-size: 11px; color: var(--w40); letter-spacing: 1px; margin-bottom: 14px; font-weight: 600; }
+.rs-field { margin-bottom: 10px; }
+.rs-field-label { font-size: 10px; color: var(--w30); margin-bottom: 4px; letter-spacing: 0.5px; }
+.rs-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rs-row-2 .rs-field { margin-bottom: 0; }
+.rs-total-display {
+  margin-top: 10px; padding: 10px; background: rgba(0,255,136,0.05);
+  border: 1px solid rgba(0,255,136,0.15); border-radius: 8px;
+  font-size: 13px; color: var(--green); text-align: center; font-weight: 600;
+}
+
+/* Stops */
+.rs-stop {
+  padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; margin-bottom: 8px;
+}
+.rs-stop.active { background: rgba(0,255,136,0.05); border-color: rgba(0,255,136,0.3); }
+.rs-stop-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.08);
+  font-size: 11px; font-weight: 600; color: var(--w70); margin-right: 8px;
+}
+.rs-stop-times { font-size: 12px; color: var(--w70); }
+.rs-stop-times .arrow { color: var(--w20); margin: 0 4px; }
+.rs-stop-loc { font-size: 13px; font-weight: 500; color: #fff; margin-top: 6px; }
+.rs-stop-meta { display: flex; gap: 10px; margin-top: 4px; font-size: 11px; color: var(--w40); flex-wrap: wrap; }
+.rs-stop-remarks { margin-top: 6px; font-size: 11px; color: var(--w50); font-style: italic; }
+.rs-stop-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.rs-stop-action-btn {
+  padding: 4px 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 5px; color: var(--w50); font-size: 10px; cursor: pointer; font-family: var(--font);
+}
+.rs-stop-action-btn.depart { background: rgba(0,255,136,0.12); border-color: rgba(0,255,136,0.25); color: var(--green); }
+.rs-stop-action-btn.danger { color: rgba(255,70,70,0.5); }
+
+.rs-add-buttons { display: flex; gap: 8px; margin-top: 10px; }
+.rs-add-now {
+  flex: 1; padding: 14px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.25);
+  border-radius: 10px; color: var(--green); font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: var(--font); letter-spacing: 0.3px;
+}
+.rs-add-manual {
+  padding: 14px 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; color: var(--w50); font-size: 12px; cursor: pointer; font-family: var(--font);
+}
+
+.rs-export-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.rs-export-btn {
+  padding: 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: var(--font); letter-spacing: 0.3px;
+}
+.rs-export-pdf { background: rgba(255,100,150,0.12); border: 1px solid rgba(255,100,150,0.25); color: rgba(255,150,200,0.9); }
+.rs-export-csv { background: rgba(100,200,255,0.12); border: 1px solid rgba(100,200,255,0.25); color: rgba(150,210,255,0.9); }
+
+.rs-active-stop-banner {
+  padding: 12px; background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.25);
+  border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+}
+.rs-active-stop-banner-text { font-size: 11px; color: var(--green); }
+.rs-active-stop-banner-time { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--green); }
+
 @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
 @keyframes liveDot { 0%,100%{transform:scale(1)} 50%{transform:scale(1.4)} }
 @keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
@@ -272,9 +385,36 @@ input[type=number] { -moz-appearance: textfield; }
     <h1>MIS HORAS</h1>
     <div class="header-sub">REGISTRO • REDONDEO 15 MIN</div>
   </div>
-  <div class="live-badge" id="liveBadge">
-    <div class="live-dot"></div>
-    <span class="live-label">ACTIVO</span>
+  <div style="display:flex; align-items:center; gap:8px">
+    <div class="live-badge" id="liveBadge">
+      <div class="live-dot"></div>
+      <span class="live-label">ACTIVO</span>
+    </div>
+    <button class="settings-btn" onclick="toggleSettings()" title="Ajustes">⚙</button>
+  </div>
+</div>
+
+<div id="settingsPanel">
+  <div class="settings-title">AJUSTES — DEFAULTS PARA HOJA DE RUTA</div>
+  <div class="settings-grid-full">
+    <input type="text" class="input-base" id="setDriverName" placeholder="Nombre del conductor (ej: Ziad Haidar)">
+  </div>
+  <div class="settings-grid">
+    <input type="text" class="input-base" id="setDriverNum" placeholder="# Conductor">
+    <input type="text" class="input-base" id="setDefaultService" placeholder="Servicio default (Hesman)">
+  </div>
+  <div class="settings-grid">
+    <input type="text" class="input-base" id="setTruckUnit" placeholder="# Unidad camión">
+    <input type="text" class="input-base" id="setTrailer" placeholder="# Remolque">
+  </div>
+  <div class="settings-grid-full">
+    <input type="text" class="input-base" id="setPlate" placeholder="# Placa">
+  </div>
+  <div style="display:flex; gap:8px; margin-top:10px">
+    <button class="export-go" style="flex:1; background:rgba(0,200,255,0.15); border-color:rgba(0,200,255,0.3); color:#6bb8ff" onclick="saveSettings()">GUARDAR</button>
+  </div>
+  <div class="settings-hint">
+    Estos valores se autorellenan al crear nuevas hojas de ruta. Puedes cambiarlos en cualquier momento por hoja.
   </div>
 </div>
 
@@ -397,6 +537,156 @@ input[type=number] { -moz-appearance: textfield; }
   </div>
 </div>
 
+<!-- ─── Route Sheet Overlay ─── -->
+<div class="rs-overlay" id="rsOverlay">
+  <div class="rs-topbar">
+    <button class="rs-back" onclick="closeRouteSheet()">← Volver</button>
+    <div style="text-align:center">
+      <div class="rs-topbar-title">HOJA DE RUTA</div>
+      <div class="rs-topbar-date" id="rsTopDate"></div>
+    </div>
+    <div style="width:70px"></div>
+  </div>
+
+  <!-- Client & Day -->
+  <div class="rs-section">
+    <div class="rs-section-title">CLIENT & DAY</div>
+    <div class="rs-field">
+      <div class="rs-field-label">CLIENT / SERVICE</div>
+      <input type="text" class="input-base" id="rsClient" oninput="updateRouteSheet()">
+    </div>
+    <div class="rs-row-2">
+      <div class="rs-field">
+        <div class="rs-field-label">START TIME</div>
+        <input type="time" class="input-base" id="rsStartTime" onchange="updateRouteSheetTimes()">
+      </div>
+      <div class="rs-field">
+        <div class="rs-field-label">END TIME</div>
+        <input type="time" class="input-base" id="rsEndTime" onchange="updateRouteSheetTimes()">
+      </div>
+    </div>
+    <div class="rs-total-display" id="rsTotalDisplay">Total: 0h 00m</div>
+  </div>
+
+  <!-- Driver & Vehicle -->
+  <div class="rs-section">
+    <div class="rs-section-title">DRIVER & VEHICLE</div>
+    <div class="rs-field">
+      <div class="rs-field-label">DRIVER NAME</div>
+      <input type="text" class="input-base" id="rsDriverName" oninput="updateRouteSheet()">
+    </div>
+    <div class="rs-row-2">
+      <div class="rs-field">
+        <div class="rs-field-label">DRIVER #</div>
+        <input type="text" class="input-base" id="rsDriverNum" oninput="updateRouteSheet()">
+      </div>
+      <div class="rs-field">
+        <div class="rs-field-label">LICENSE PLATE</div>
+        <input type="text" class="input-base" id="rsPlate" oninput="updateRouteSheet()">
+      </div>
+    </div>
+    <div class="rs-row-2">
+      <div class="rs-field">
+        <div class="rs-field-label">TRUCK UNIT #</div>
+        <input type="text" class="input-base" id="rsTruckUnit" oninput="updateRouteSheet()">
+      </div>
+      <div class="rs-field">
+        <div class="rs-field-label">TRAILER #</div>
+        <input type="text" class="input-base" id="rsTrailer" oninput="updateRouteSheet()">
+      </div>
+    </div>
+    <div class="rs-row-2">
+      <div class="rs-field">
+        <div class="rs-field-label">KM START</div>
+        <input type="number" class="input-base" id="rsKmStart" oninput="updateRouteSheet()">
+      </div>
+      <div class="rs-field">
+        <div class="rs-field-label">KM END</div>
+        <input type="number" class="input-base" id="rsKmEnd" oninput="updateRouteSheet()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Stops -->
+  <div class="rs-section">
+    <div class="rs-section-title">STOPS / PARADAS</div>
+    <div id="rsActiveStopBanner"></div>
+    <div id="rsStopsList"></div>
+    <div class="rs-add-buttons">
+      <button class="rs-add-now" id="rsAddNowBtn" onclick="addStopNow()">+ AÑADIR (AHORA)</button>
+      <button class="rs-add-manual" onclick="toggleManualStop()">+ MANUAL</button>
+    </div>
+    <div id="rsManualStopForm" class="hidden" style="margin-top:12px; padding:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px">
+      <div class="rs-row-2" style="margin-bottom:8px">
+        <input type="time" class="input-base" id="msArrived" placeholder="Llegada">
+        <input type="time" class="input-base" id="msDeparted" placeholder="Salida">
+      </div>
+      <input type="text" class="input-base" id="msLocation" placeholder="Ubicación / Endroit" style="margin-bottom:8px; font-size:12px">
+      <div class="rs-row-2" style="margin-bottom:8px">
+        <input type="text" class="input-base" id="msPallets" placeholder="Palettes">
+        <input type="text" class="input-base" id="msInvoice" placeholder="N° factura">
+      </div>
+      <input type="text" class="input-base" id="msRemarks" placeholder="Remarques" style="margin-bottom:10px; font-size:11px">
+      <div style="display:flex; gap:6px">
+        <button class="manual-save" onclick="saveManualStop()">GUARDAR</button>
+        <button class="manual-cancel-btn" onclick="toggleManualStop()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stop Editor (inline) -->
+  <div class="rs-section hidden" id="rsStopEditor">
+    <div class="rs-section-title">EDITAR PARADA</div>
+    <div class="rs-row-2" style="margin-bottom:8px">
+      <div class="rs-field">
+        <div class="rs-field-label">LLEGADA</div>
+        <input type="time" class="input-base" id="esArrived">
+      </div>
+      <div class="rs-field">
+        <div class="rs-field-label">SALIDA</div>
+        <input type="time" class="input-base" id="esDeparted">
+      </div>
+    </div>
+    <div class="rs-field">
+      <div class="rs-field-label">UBICACIÓN</div>
+      <input type="text" class="input-base" id="esLocation" style="font-size:12px">
+    </div>
+    <div class="rs-row-2" style="margin-bottom:8px">
+      <div class="rs-field">
+        <div class="rs-field-label">PALETTES</div>
+        <input type="text" class="input-base" id="esPallets">
+      </div>
+      <div class="rs-field">
+        <div class="rs-field-label">N° FACTURA</div>
+        <input type="text" class="input-base" id="esInvoice">
+      </div>
+    </div>
+    <div class="rs-field">
+      <div class="rs-field-label">REMARQUES</div>
+      <input type="text" class="input-base" id="esRemarks" style="font-size:11px">
+    </div>
+    <div style="display:flex; gap:6px; margin-top:10px">
+      <button class="manual-save" onclick="saveStopEdit()">GUARDAR CAMBIOS</button>
+      <button class="manual-cancel-btn" onclick="cancelStopEdit()">CANCELAR</button>
+    </div>
+  </div>
+
+  <!-- Export -->
+  <div class="rs-section">
+    <div class="rs-section-title">EXPORTAR Y ENVIAR</div>
+    <div class="rs-export-btns">
+      <button class="rs-export-btn rs-export-pdf" onclick="exportRouteSheetPDF()">📄 PDF</button>
+      <button class="rs-export-btn rs-export-csv" onclick="exportRouteSheetCSV()">📊 CSV</button>
+    </div>
+    <div style="font-size:10px; color:var(--w30); margin-top:10px; text-align:center; line-height:1.4">
+      PDF en inglés • Compartir directo por correo via Android Share<br>
+      CSV con todos los datos crudos
+    </div>
+  </div>
+
+  <div style="height:40px"></div>
+</div>
+
 <script>
 // ─── State ───
 let entries = [];
@@ -407,6 +697,19 @@ let timerInterval = null;
 
 const ENTRIES_KEY = 'mishoras_entries';
 const ACTIVE_KEY = 'mishoras_active';
+const SETTINGS_KEY = 'mishoras_settings';
+
+// Route sheet state
+let settings = {
+  driver_name: '',
+  driver_num: '',
+  truck_unit: '',
+  trailer: '',
+  plate: '',
+  default_service: 'Hesman'
+};
+let currentRsEntryId = null;
+let editingStopId = null;
 
 // ─── Helpers ───
 const pad = (n) => String(n).padStart(2, '0');
@@ -439,10 +742,15 @@ function getRecentServices() {
 function loadData() {
   try { entries = JSON.parse(localStorage.getItem(ENTRIES_KEY) || '[]'); } catch { entries = []; }
   try { activeSession = JSON.parse(localStorage.getItem(ACTIVE_KEY)); } catch { activeSession = null; }
+  try {
+    const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    if (s) settings = { ...settings, ...s };
+  } catch {}
 }
 function saveData() {
   localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
   localStorage.setItem(ACTIVE_KEY, JSON.stringify(activeSession));
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }
 
 // ─── Clock ───
@@ -554,8 +862,11 @@ function render() {
     since.classList.add('hidden');
     rounded.classList.add('hidden');
     svcLabel.classList.add('hidden');
-    document.getElementById('serviceInput').readOnly = false;
-    document.getElementById('serviceInput').style.opacity = '1';
+    const si = document.getElementById('serviceInput');
+    si.readOnly = false;
+    si.style.opacity = '1';
+    // Auto-fill with default service if empty
+    if (!si.value && settings.default_service) si.value = settings.default_service;
   }
 
   // Service chips
@@ -614,7 +925,8 @@ function renderEntries() {
 
 function renderEntry(e) {
   const crosses = dateKey(e.start) !== dateKey(e.end);
-  return `<div class="entry">
+  const stopCount = e.rs?.stops?.length || 0;
+  return `<div class="entry" onclick="openRouteSheet(${e.id})">
     <div class="entry-top">
       <div class="entry-left">
         ${e.service ? `<span class="badge-service">${esc(e.service)}</span>` : ''}
@@ -622,15 +934,17 @@ function renderEntry(e) {
         ${e.edited ? '<span class="badge badge-edited">EDITADO</span>' : ''}
         ${e.manual ? '<span class="badge badge-manual">MANUAL</span>' : ''}
         ${e.hours === 0 ? '<span class="badge badge-under15">&lt; 15m</span>' : ''}
+        ${stopCount > 0 ? `<span class="entry-rs-badge">📋 ${stopCount} ${stopCount === 1 ? 'parada' : 'paradas'}</span>` : ''}
       </div>
       <div class="entry-right">
         <span class="entry-hours">${formatHours(e.hours)}</span>
         <span class="entry-dec">${(e.hours||0).toFixed(2)}h</span>
-        <button class="btn-icon" style="color:var(--w20)" onclick="startEdit(${e.id})">✎</button>
-        <button class="btn-icon" style="color:rgba(255,70,70,0.3)" onclick="deleteEntry(${e.id})">✕</button>
+        <button class="btn-icon" style="color:var(--w20)" onclick="event.stopPropagation();startEdit(${e.id})">✎</button>
+        <button class="btn-icon" style="color:rgba(255,70,70,0.3)" onclick="event.stopPropagation();deleteEntry(${e.id})">✕</button>
       </div>
     </div>
     ${e.note ? `<div class="entry-note">📝 ${esc(e.note)}</div>` : ''}
+    <div style="font-size:10px;color:var(--w20);margin-top:6px;text-align:right">Toca para hoja de ruta →</div>
   </div>`;
 }
 
@@ -845,6 +1159,595 @@ function restoreData(event) {
   };
   reader.readAsText(file);
   event.target.value = '';
+}
+
+// ─── Settings ───
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    document.getElementById('setDriverName').value = settings.driver_name || '';
+    document.getElementById('setDriverNum').value = settings.driver_num || '';
+    document.getElementById('setTruckUnit').value = settings.truck_unit || '';
+    document.getElementById('setTrailer').value = settings.trailer || '';
+    document.getElementById('setPlate').value = settings.plate || '';
+    document.getElementById('setDefaultService').value = settings.default_service || '';
+  }
+}
+function saveSettings() {
+  settings.driver_name = document.getElementById('setDriverName').value.trim();
+  settings.driver_num = document.getElementById('setDriverNum').value.trim();
+  settings.truck_unit = document.getElementById('setTruckUnit').value.trim();
+  settings.trailer = document.getElementById('setTrailer').value.trim();
+  settings.plate = document.getElementById('setPlate').value.trim();
+  settings.default_service = document.getElementById('setDefaultService').value.trim() || 'Hesman';
+  saveData();
+  document.getElementById('settingsPanel').classList.remove('open');
+  render();
+}
+
+// ─── Route Sheet ───
+function ensureRouteSheet(entry) {
+  if (!entry.rs) {
+    entry.rs = {
+      driver_name: settings.driver_name || '',
+      driver_num: settings.driver_num || '',
+      truck_unit: settings.truck_unit || '',
+      trailer: settings.trailer || '',
+      plate: settings.plate || '',
+      km_start: '',
+      km_end: '',
+      stops: []
+    };
+  }
+  return entry.rs;
+}
+
+function openRouteSheet(entryId) {
+  const entry = entries.find(e => e.id === entryId);
+  if (!entry) return;
+  currentRsEntryId = entryId;
+  ensureRouteSheet(entry);
+
+  document.getElementById('rsTopDate').textContent = formatDate(entry.start).toUpperCase();
+  document.getElementById('rsClient').value = entry.service || '';
+  document.getElementById('rsStartTime').value = formatTime24(entry.start);
+  document.getElementById('rsEndTime').value = formatTime24(entry.end);
+  document.getElementById('rsDriverName').value = entry.rs.driver_name || '';
+  document.getElementById('rsDriverNum').value = entry.rs.driver_num || '';
+  document.getElementById('rsPlate').value = entry.rs.plate || '';
+  document.getElementById('rsTruckUnit').value = entry.rs.truck_unit || '';
+  document.getElementById('rsTrailer').value = entry.rs.trailer || '';
+  document.getElementById('rsKmStart').value = entry.rs.km_start || '';
+  document.getElementById('rsKmEnd').value = entry.rs.km_end || '';
+
+  updateTotalDisplay(entry);
+  renderStops();
+
+  document.getElementById('rsOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Push state for back button
+  history.pushState({ rs: true }, '');
+}
+
+function closeRouteSheet() {
+  document.getElementById('rsOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('rsStopEditor').classList.add('hidden');
+  document.getElementById('rsManualStopForm').classList.add('hidden');
+  editingStopId = null;
+  currentRsEntryId = null;
+  render();
+  // Pop history state if we pushed one
+  if (history.state && history.state.rs) history.back();
+}
+
+window.addEventListener('popstate', () => {
+  if (document.getElementById('rsOverlay').classList.contains('open')) {
+    document.getElementById('rsOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    editingStopId = null;
+    currentRsEntryId = null;
+    render();
+  }
+});
+
+function getCurrentRsEntry() {
+  return entries.find(e => e.id === currentRsEntryId);
+}
+
+function updateRouteSheet() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  entry.service = document.getElementById('rsClient').value.trim();
+  entry.rs.driver_name = document.getElementById('rsDriverName').value.trim();
+  entry.rs.driver_num = document.getElementById('rsDriverNum').value.trim();
+  entry.rs.plate = document.getElementById('rsPlate').value.trim();
+  entry.rs.truck_unit = document.getElementById('rsTruckUnit').value.trim();
+  entry.rs.trailer = document.getElementById('rsTrailer').value.trim();
+  entry.rs.km_start = document.getElementById('rsKmStart').value.trim();
+  entry.rs.km_end = document.getElementById('rsKmEnd').value.trim();
+  saveData();
+}
+
+function updateRouteSheetTimes() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const startStr = document.getElementById('rsStartTime').value;
+  const endStr = document.getElementById('rsEndTime').value;
+  if (!startStr || !endStr) return;
+  const sd = dateKey(entry.start);
+  const ed = dateKey(entry.end);
+  const newStart = new Date(`${sd}T${startStr}:00`);
+  const newEnd = new Date(`${ed}T${endStr}:00`);
+  if (newEnd <= newStart) { alert('La hora de fin debe ser después de la hora de inicio'); return; }
+  entry.start = newStart.toISOString();
+  entry.end = newEnd.toISOString();
+  const raw = calcHours(entry.start, entry.end);
+  entry.rawHours = raw;
+  entry.hours = roundTo15(raw);
+  entry.edited = true;
+  saveData();
+  updateTotalDisplay(entry);
+}
+
+function updateTotalDisplay(entry) {
+  document.getElementById('rsTotalDisplay').textContent = `Total: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`;
+}
+
+// ─── Stops ───
+function renderStops() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const stops = entry.rs.stops || [];
+  // Sort by arrived time
+  stops.sort((a, b) => new Date(a.arrived) - new Date(b.arrived));
+
+  // Active stop banner (stop with arrived but no departed)
+  const active = stops.find(s => s.arrived && !s.departed);
+  const banner = document.getElementById('rsActiveStopBanner');
+  if (active) {
+    banner.innerHTML = `
+      <div class="rs-active-stop-banner">
+        <div>
+          <div class="rs-active-stop-banner-text">EN PARADA — ${esc(active.location || 'Sin ubicación')}</div>
+          <div style="font-size:10px;color:var(--w50);margin-top:2px">desde ${formatTime(active.arrived)}</div>
+        </div>
+        <button class="rs-stop-action-btn depart" onclick="markDepartureNow(${active.id})">SALIR AHORA</button>
+      </div>
+    `;
+    document.getElementById('rsAddNowBtn').textContent = '+ NUEVA PARADA (AHORA)';
+  } else {
+    banner.innerHTML = '';
+    document.getElementById('rsAddNowBtn').textContent = '+ LLEGUÉ AHORA';
+  }
+
+  const list = document.getElementById('rsStopsList');
+  if (stops.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px 0;color:var(--w20);font-size:12px">Sin paradas aún</div>';
+    return;
+  }
+  list.innerHTML = stops.map((s, i) => renderStop(s, i)).join('');
+}
+
+function renderStop(stop, idx) {
+  const isActive = stop.arrived && !stop.departed;
+  const arrTime = stop.arrived ? formatTime(stop.arrived) : '—';
+  const depTime = stop.departed ? formatTime(stop.departed) : '—';
+  return `<div class="rs-stop ${isActive ? 'active' : ''}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1">
+        <span class="rs-stop-num">${idx + 1}</span>
+        <span class="rs-stop-times">${arrTime}<span class="arrow">→</span>${depTime}</span>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="rs-stop-action-btn" onclick="startEditStop(${stop.id})">✎</button>
+        <button class="rs-stop-action-btn danger" onclick="deleteStop(${stop.id})">✕</button>
+      </div>
+    </div>
+    ${stop.location ? `<div class="rs-stop-loc">${esc(stop.location)}</div>` : ''}
+    ${(stop.pallets || stop.invoice) ? `<div class="rs-stop-meta">
+      ${stop.pallets ? `<span>📦 ${esc(stop.pallets)} pal.</span>` : ''}
+      ${stop.invoice ? `<span># ${esc(stop.invoice)}</span>` : ''}
+    </div>` : ''}
+    ${stop.remarks ? `<div class="rs-stop-remarks">${esc(stop.remarks)}</div>` : ''}
+    ${isActive ? `<div class="rs-stop-actions"><button class="rs-stop-action-btn depart" onclick="markDepartureNow(${stop.id})">MARCAR SALIDA AHORA</button></div>` : ''}
+  </div>`;
+}
+
+function addStopNow() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  // Close any open active stop first
+  const active = entry.rs.stops.find(s => s.arrived && !s.departed);
+  if (active && !confirm('Hay una parada abierta. ¿Marcarle salida ahora y crear otra?')) return;
+  if (active) active.departed = new Date().toISOString();
+  // Ask for location
+  const loc = prompt('Ubicación / Endroit (opcional):', '');
+  entry.rs.stops.push({
+    id: Date.now(),
+    arrived: new Date().toISOString(),
+    departed: null,
+    location: loc || '',
+    pallets: '',
+    invoice: '',
+    remarks: ''
+  });
+  saveData();
+  renderStops();
+}
+
+function markDepartureNow(stopId) {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const stop = entry.rs.stops.find(s => s.id === stopId);
+  if (!stop) return;
+  stop.departed = new Date().toISOString();
+  saveData();
+  renderStops();
+}
+
+function deleteStop(stopId) {
+  if (!confirm('¿Borrar esta parada?')) return;
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  entry.rs.stops = entry.rs.stops.filter(s => s.id !== stopId);
+  saveData();
+  renderStops();
+}
+
+function toggleManualStop() {
+  const form = document.getElementById('rsManualStopForm');
+  form.classList.toggle('hidden');
+  if (!form.classList.contains('hidden')) {
+    // Clear fields
+    ['msArrived','msDeparted','msLocation','msPallets','msInvoice','msRemarks'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+  }
+}
+
+function saveManualStop() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const arr = document.getElementById('msArrived').value;
+  const dep = document.getElementById('msDeparted').value;
+  if (!arr) { alert('Indica al menos la hora de llegada'); return; }
+  const date = dateKey(entry.start);
+  const arrivedISO = new Date(`${date}T${arr}:00`).toISOString();
+  let departedISO = null;
+  if (dep) {
+    let depDate = date;
+    // If departed time < arrived time, assume next day
+    if (dep < arr) {
+      const next = new Date(entry.start);
+      next.setDate(next.getDate() + 1);
+      depDate = dateKey(next);
+    }
+    departedISO = new Date(`${depDate}T${dep}:00`).toISOString();
+  }
+  entry.rs.stops.push({
+    id: Date.now(),
+    arrived: arrivedISO,
+    departed: departedISO,
+    location: document.getElementById('msLocation').value.trim(),
+    pallets: document.getElementById('msPallets').value.trim(),
+    invoice: document.getElementById('msInvoice').value.trim(),
+    remarks: document.getElementById('msRemarks').value.trim()
+  });
+  saveData();
+  toggleManualStop();
+  renderStops();
+}
+
+function startEditStop(stopId) {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const stop = entry.rs.stops.find(s => s.id === stopId);
+  if (!stop) return;
+  editingStopId = stopId;
+  document.getElementById('esArrived').value = stop.arrived ? formatTime24(stop.arrived) : '';
+  document.getElementById('esDeparted').value = stop.departed ? formatTime24(stop.departed) : '';
+  document.getElementById('esLocation').value = stop.location || '';
+  document.getElementById('esPallets').value = stop.pallets || '';
+  document.getElementById('esInvoice').value = stop.invoice || '';
+  document.getElementById('esRemarks').value = stop.remarks || '';
+  document.getElementById('rsStopEditor').classList.remove('hidden');
+  document.getElementById('rsStopEditor').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelStopEdit() {
+  editingStopId = null;
+  document.getElementById('rsStopEditor').classList.add('hidden');
+}
+
+function saveStopEdit() {
+  const entry = getCurrentRsEntry();
+  if (!entry || !editingStopId) return;
+  const stop = entry.rs.stops.find(s => s.id === editingStopId);
+  if (!stop) return;
+  const date = dateKey(entry.start);
+  const arr = document.getElementById('esArrived').value;
+  const dep = document.getElementById('esDeparted').value;
+  if (arr) stop.arrived = new Date(`${date}T${arr}:00`).toISOString();
+  if (dep) {
+    let depDate = date;
+    if (arr && dep < arr) {
+      const next = new Date(entry.start); next.setDate(next.getDate() + 1);
+      depDate = dateKey(next);
+    }
+    stop.departed = new Date(`${depDate}T${dep}:00`).toISOString();
+  } else {
+    stop.departed = null;
+  }
+  stop.location = document.getElementById('esLocation').value.trim();
+  stop.pallets = document.getElementById('esPallets').value.trim();
+  stop.invoice = document.getElementById('esInvoice').value.trim();
+  stop.remarks = document.getElementById('esRemarks').value.trim();
+  saveData();
+  cancelStopEdit();
+  renderStops();
+}
+
+// ─── PDF Export ───
+function formatTime12English(d) {
+  return new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+function formatDateEnglish(d) {
+  return new Date(d).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+async function exportRouteSheetPDF() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  if (!window.jspdf) { alert('PDF library no cargada. Verifica tu conexión.'); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'pt', 'a4');
+  const W = 595, H = 842;
+  const M = 40;
+  const CW = W - 2 * M;
+  let y = M;
+
+  // Title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(20);
+  doc.text('DAILY ROUTE SHEET', M, y + 18);
+  y += 26;
+
+  // Date
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80);
+  doc.text(formatDateEnglish(entry.start), M, y + 14);
+  y += 28;
+
+  // Underline
+  doc.setDrawColor(40);
+  doc.setLineWidth(1.5);
+  doc.line(M, y, W - M, y);
+  y += 18;
+
+  // Header info - 2 columns
+  doc.setFontSize(10);
+  const colW = CW / 2;
+  const rowH = 20;
+  const labelW = 100;
+  const totalKm = (entry.rs.km_end && entry.rs.km_start) ? (Number(entry.rs.km_end) - Number(entry.rs.km_start)) : '';
+
+  const headerData = [
+    ['Client', entry.service || '—'],
+    ['Driver Name', entry.rs.driver_name || '—'],
+    ['Start Time', formatTime12English(entry.start)],
+    ['End Time', formatTime12English(entry.end)],
+    ['Total Hours', `${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`],
+    ['Driver #', entry.rs.driver_num || '—'],
+    ['Truck Unit #', entry.rs.truck_unit || '—'],
+    ['Trailer #', entry.rs.trailer || '—'],
+    ['License Plate', entry.rs.plate || '—'],
+    ['', ''],
+    ['KM Start', entry.rs.km_start || '—'],
+    ['KM End', entry.rs.km_end || '—'],
+    ['Total KM', totalKm !== '' ? String(totalKm) : '—'],
+    ['', '']
+  ];
+
+  for (let i = 0; i < headerData.length; i += 2) {
+    const yPos = y + Math.floor(i / 2) * rowH;
+    if (headerData[i][0]) {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100);
+      doc.text(headerData[i][0] + ':', M, yPos + 13);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0);
+      doc.text(String(headerData[i][1]), M + labelW, yPos + 13);
+    }
+    if (i + 1 < headerData.length && headerData[i+1][0]) {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100);
+      doc.text(headerData[i+1][0] + ':', M + colW, yPos + 13);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0);
+      doc.text(String(headerData[i+1][1]), M + colW + labelW, yPos + 13);
+    }
+  }
+  y += Math.ceil(headerData.length / 2) * rowH + 14;
+
+  // Stops table title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(20);
+  doc.text('STOPS', M, y);
+  y += 10;
+  doc.setDrawColor(40);
+  doc.setLineWidth(1);
+  doc.line(M, y, W - M, y);
+  y += 8;
+
+  // Stops table headers
+  const colWidths = [22, 55, 55, 135, 35, 75, 138]; // # Arr Dep Loc Pal Inv Rem
+  const totalColsW = colWidths.reduce((a,b)=>a+b,0);
+  const headers = ['#', 'Arrival', 'Departure', 'Location', 'Pal.', 'Invoice #', 'Remarks'];
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setFillColor(240);
+  doc.rect(M, y, totalColsW, 18, 'F');
+  doc.setTextColor(60);
+  let x = M;
+  headers.forEach((h, i) => {
+    doc.text(h, x + 4, y + 12);
+    x += colWidths[i];
+  });
+  // Header borders
+  doc.setDrawColor(200);
+  doc.setLineWidth(0.5);
+  doc.rect(M, y, totalColsW, 18);
+  y += 18;
+
+  // Stop rows
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0);
+  const stops = [...(entry.rs.stops || [])].sort((a, b) => new Date(a.arrived) - new Date(b.arrived));
+
+  if (stops.length === 0) {
+    doc.setTextColor(150);
+    doc.setFont('helvetica', 'italic');
+    doc.text('No stops recorded', M + 4, y + 14);
+    y += 22;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0);
+  } else {
+    stops.forEach((s, idx) => {
+      const remarks = s.remarks || '';
+      const remarksLines = doc.splitTextToSize(remarks, colWidths[6] - 8);
+      const locLines = doc.splitTextToSize(s.location || '', colWidths[3] - 8);
+      const lineCount = Math.max(1, remarksLines.length, locLines.length);
+      const rowHeight = Math.max(20, lineCount * 11 + 6);
+
+      // Page break check
+      if (y + rowHeight > H - 80) {
+        doc.addPage();
+        y = M;
+      }
+
+      const rowData = [
+        String(idx + 1),
+        s.arrived ? formatTime12English(s.arrived) : '—',
+        s.departed ? formatTime12English(s.departed) : '—',
+        null, // location handled separately for wrap
+        s.pallets || '',
+        s.invoice || '',
+        null  // remarks handled separately
+      ];
+
+      let cx = M;
+      rowData.forEach((d, i) => {
+        if (d !== null) doc.text(String(d), cx + 4, y + 12);
+        cx += colWidths[i];
+      });
+
+      // Location (multi-line)
+      doc.text(locLines, M + colWidths[0] + colWidths[1] + colWidths[2] + 4, y + 12);
+      // Remarks (multi-line)
+      if (remarks) {
+        doc.text(remarksLines, M + colWidths.slice(0,6).reduce((a,b)=>a+b,0) + 4, y + 12);
+      }
+
+      // Borders
+      doc.rect(M, y, totalColsW, rowHeight);
+      let bx = M;
+      for (let i = 0; i < colWidths.length - 1; i++) {
+        bx += colWidths[i];
+        doc.line(bx, y, bx, y + rowHeight);
+      }
+
+      y += rowHeight;
+    });
+  }
+
+  // Footer
+  y = H - 60;
+  doc.setFontSize(9);
+  doc.setTextColor(120);
+  doc.text(`Generated by Mis Horas — ${new Date().toLocaleString('en-US')}`, M, y);
+  y += 16;
+  doc.setTextColor(80);
+  doc.text('Driver signature: ______________________________', M, y);
+  doc.text('Date: ____________', W - M - 100, y);
+
+  // Output
+  const fileName = `route-sheet_${dateKey(entry.start)}_${(entry.service || 'shift').replace(/[^a-zA-Z0-9]/g, '-')}.pdf`;
+  
+  // Try Web Share API for direct email sharing
+  const blob = doc.output('blob');
+  const file = new File([blob], fileName, { type: 'application/pdf' });
+  
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: `Route Sheet — ${formatDateEnglish(entry.start)}`,
+        text: `Daily route sheet for ${entry.service || 'shift'} on ${formatDateEnglish(entry.start)}`
+      });
+      return;
+    } catch (err) {
+      if (err.name !== 'AbortError') console.log('Share error:', err);
+    }
+  }
+  
+  // Fallback: download
+  doc.save(fileName);
+}
+
+function exportRouteSheetCSV() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const rs = entry.rs || {};
+  const stops = [...(rs.stops || [])].sort((a, b) => new Date(a.arrived) - new Date(b.arrived));
+  const totalKm = (rs.km_end && rs.km_start) ? (Number(rs.km_end) - Number(rs.km_start)) : '';
+
+  const rows = [];
+  // Header info
+  rows.push(['DAILY ROUTE SHEET']);
+  rows.push([]);
+  rows.push(['Client', entry.service || '']);
+  rows.push(['Date', formatDateFull(entry.start)]);
+  rows.push(['Driver Name', rs.driver_name || '']);
+  rows.push(['Driver #', rs.driver_num || '']);
+  rows.push(['Start Time', formatTime24(entry.start)]);
+  rows.push(['End Time', formatTime24(entry.end)]);
+  rows.push(['Total Hours', entry.hours.toFixed(2)]);
+  rows.push(['Truck Unit #', rs.truck_unit || '']);
+  rows.push(['Trailer #', rs.trailer || '']);
+  rows.push(['License Plate', rs.plate || '']);
+  rows.push(['KM Start', rs.km_start || '']);
+  rows.push(['KM End', rs.km_end || '']);
+  rows.push(['Total KM', totalKm]);
+  rows.push([]);
+  rows.push(['STOPS']);
+  rows.push(['#', 'Arrival', 'Departure', 'Location', 'Pallets', 'Invoice #', 'Remarks']);
+  stops.forEach((s, i) => {
+    rows.push([
+      i + 1,
+      s.arrived ? formatTime24(s.arrived) : '',
+      s.departed ? formatTime24(s.departed) : '',
+      `"${(s.location || '').replace(/"/g, '""')}"`,
+      s.pallets || '',
+      s.invoice || '',
+      `"${(s.remarks || '').replace(/"/g, '""')}"`
+    ]);
+  });
+
+  const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `route-sheet_${dateKey(entry.start)}_${(entry.service || 'shift').replace(/[^a-zA-Z0-9]/g, '-')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ─── Init ───
