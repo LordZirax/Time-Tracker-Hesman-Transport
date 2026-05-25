@@ -1,7 +1,7 @@
 {
-  "name": "Mis Horas",
-  "short_name": "Mis Horas",
-  "description": "Time tracking and route sheet app — ES / EN / FR",
+  "name": "Ziad Personal Driver Time Tracker",
+  "short_name": "Driver Tracker",
+  "description": "Time tracking, breaks and route sheets for drivers — ES / EN / FR",
   "start_url": "/Time-Tracker-Hesman-Transport/index.html",
   "scope": "/Time-Tracker-Hesman-Transport/",
   "display": "standalone",

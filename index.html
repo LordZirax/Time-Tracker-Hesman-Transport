@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Mis Horas</title>
+<title>Ziad Personal Driver Time Tracker</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -154,6 +154,46 @@ input[type=number] { -moz-appearance: textfield; }
   letter-spacing: 0.3px;
   animation: pulse 2s infinite;
 }
+.pause-btn {
+  margin-top: 12px;
+  padding: 12px 28px;
+  background: rgba(255,180,0,0.1);
+  border: 1px solid rgba(255,180,0,0.3);
+  border-radius: 10px;
+  color: rgba(255,200,80,0.95);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  letter-spacing: 0.5px;
+}
+.pause-btn:active { transform: scale(0.97); }
+.break-banner {
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: rgba(255,180,0,0.12);
+  border: 1px solid rgba(255,180,0,0.35);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 240px;
+  animation: pulse 2s infinite;
+}
+.break-banner-text { font-size: 11px; color: rgba(255,200,80,0.9); font-weight: 600; letter-spacing: 0.5px; }
+.break-banner-time { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: rgba(255,200,80,1); margin-top: 2px; }
+.break-resume-btn {
+  background: rgba(0,255,136,0.15);
+  border: 1px solid rgba(0,255,136,0.35);
+  border-radius: 10px;
+  color: var(--green);
+  font-size: 18px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: var(--font);
+}
+.break-resume-btn:active { transform: scale(0.95); }
 
 /* Tabs */
 .tabs { display: flex; gap: 4px; padding: 0 20px; margin-bottom: 20px; }
@@ -411,7 +451,7 @@ input[type=number] { -moz-appearance: textfield; }
 
 <div class="header">
   <div>
-    <h1>MIS HORAS</h1>
+    <h1>DRIVER TIME TRACKER</h1>
     <div class="header-sub" data-i18n="appSubtitle">REGISTRO • REDONDEO 15 MIN</div>
   </div>
   <div style="display:flex; align-items:center; gap:8px">
@@ -469,6 +509,14 @@ input[type=number] { -moz-appearance: textfield; }
     <div class="clock-rounded hidden" id="clockRounded"></div>
   </button>
   <div class="clock-service-label hidden" id="clockServiceLabel"></div>
+  <div class="break-banner hidden" id="breakBanner">
+    <div>
+      <div class="break-banner-text" id="breakBannerText">EN PAUSA</div>
+      <div class="break-banner-time" id="breakBannerTime"></div>
+    </div>
+    <button class="break-resume-btn" id="resumeBtn" onclick="endBreakNow()">▶</button>
+  </div>
+  <button class="pause-btn hidden" id="pauseBtn" onclick="startBreakNow()">⏸ PAUSA</button>
   <button class="active-rs-btn hidden" id="activeRsBtn" onclick="openActiveRouteSheet()">
     📋
   </button>
@@ -711,6 +759,51 @@ input[type=number] { -moz-appearance: textfield; }
     </div>
   </div>
 
+  <!-- Breaks -->
+  <div class="rs-section">
+    <div class="rs-section-title" data-i18n="breaksSection">PAUSAS</div>
+    <div id="rsBreaksList"></div>
+    <div class="rs-add-buttons">
+      <button class="rs-add-now" id="rsAddBreakBtn" onclick="addBreakNowRs()" style="background:rgba(255,180,0,0.1);border-color:rgba(255,180,0,0.3);color:rgba(255,200,80,0.95)">+ PAUSA AHORA</button>
+      <button class="rs-add-manual" onclick="toggleManualBreak()">+ MANUAL</button>
+    </div>
+    <div id="rsManualBreakForm" class="hidden" style="margin-top:12px; padding:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px">
+      <div class="rs-row-2" style="margin-bottom:8px">
+        <div class="rs-field">
+          <div class="rs-field-label" data-i18n="breakStart">INICIO PAUSA</div>
+          <input type="time" class="input-base" id="mbStart">
+        </div>
+        <div class="rs-field">
+          <div class="rs-field-label" data-i18n="breakEnd">FIN PAUSA</div>
+          <input type="time" class="input-base" id="mbEnd">
+        </div>
+      </div>
+      <div style="display:flex; gap:6px">
+        <button class="manual-save" data-i18n="save" onclick="saveManualBreak()">GUARDAR</button>
+        <button class="manual-cancel-btn" data-i18n="cancel" onclick="toggleManualBreak()">CANCELAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Break Editor -->
+  <div class="rs-section hidden" id="rsBreakEditor">
+    <div class="rs-section-title" data-i18n="editBreak">EDITAR PAUSA</div>
+    <div class="rs-row-2" style="margin-bottom:8px">
+      <div class="rs-field">
+        <div class="rs-field-label" data-i18n="breakStart">INICIO PAUSA</div>
+        <input type="time" class="input-base" id="ebStart">
+      </div>
+      <div class="rs-field">
+        <div class="rs-field-label" data-i18n="breakEnd">FIN PAUSA</div>
+        <input type="time" class="input-base" id="ebEnd">
+      </div>
+    </div>
+    <div style="display:flex; gap:6px; margin-top:10px">
+      <button class="manual-save" data-i18n="saveChanges" onclick="saveBreakEdit()">GUARDAR CAMBIOS</button>
+      <button class="manual-cancel-btn" data-i18n="cancel" onclick="cancelBreakEdit()">CANCELAR</button>
+    </div>
+  </div>
+
   <!-- Export -->
   <div class="rs-section">
     <div class="rs-section-title" data-i18n="rsExportTitle">EXPORTAR Y ENVIAR</div>
@@ -832,6 +925,34 @@ const TRANSLATIONS = {
     rsNoStops: 'Sin paradas aún',
     rsMarkDepartureBtn: 'MARCAR SALIDA AHORA',
     rsLocationPrompt: 'Ubicación / Endroit (opcional):',
+    pauseBtn: '⏸ PAUSA',
+    resumeBtn: '▶ REANUDAR',
+    onBreakSince: 'EN PAUSA desde',
+    breaksSection: 'PAUSAS',
+    addBreakNow: '+ PAUSA AHORA',
+    endBreakNow: '+ TERMINAR PAUSA',
+    noBreaks: 'Sin pausas registradas',
+    breakStart: 'INICIO PAUSA',
+    breakEnd: 'FIN PAUSA',
+    editBreak: 'EDITAR PAUSA',
+    confirmDeleteBreak: '¿Borrar esta pausa?',
+    confirmEndBreakAndClock: 'Estás en pausa. ¿Terminar la pausa y registrar salida?',
+    breakBadge: 'PAUSA',
+    breaksLabel: 'pausas',
+    breakLabel: 'pausa',
+    grossLabel: 'Bruto',
+    breaksTotalLabel: 'Pausas',
+    netLabel: 'Neto',
+    onBreakStatus: '⏸ EN PAUSA',
+    pdfBreaks: 'BREAKS / PAUSES',
+    pdfGrossHours: 'Gross Hours',
+    pdfBreakTime: 'Break Time',
+    pdfNetHours: 'Net Hours (paid)',
+    pdfColBreakStart: 'Break Start',
+    pdfColBreakEnd: 'Break End',
+    pdfColDuration: 'Duration',
+    pdfNoBreaks: 'No breaks recorded',
+    alertBreakAfterStart: 'El fin de la pausa debe ser después del inicio',
     // Confirms
     confirmUnder15: 'Menos de 15 min → 0h. ¿Guardar de todas formas?',
     confirmDeleteEntry: '¿Borrar este registro?',
@@ -868,7 +989,7 @@ const TRANSLATIONS = {
     pdfColInvoice: 'Invoice #',
     pdfColRemarks: 'Remarks',
     pdfNoStops: 'No stops recorded',
-    pdfGenerated: 'Generated by Mis Horas',
+    pdfGenerated: 'Ziad Personal Driver Time Tracker',
     pdfDriverSignature: 'Driver signature: ______________________________',
     pdfDateLine: 'Date: ____________',
     pdfInProgress: '(in progress)',
@@ -975,6 +1096,34 @@ const TRANSLATIONS = {
     rsNoStops: 'No stops yet',
     rsMarkDepartureBtn: 'MARK DEPARTURE NOW',
     rsLocationPrompt: 'Location (optional):',
+    pauseBtn: '⏸ BREAK',
+    resumeBtn: '▶ RESUME',
+    onBreakSince: 'ON BREAK since',
+    breaksSection: 'BREAKS',
+    addBreakNow: '+ BREAK NOW',
+    endBreakNow: '+ END BREAK',
+    noBreaks: 'No breaks recorded',
+    breakStart: 'BREAK START',
+    breakEnd: 'BREAK END',
+    editBreak: 'EDIT BREAK',
+    confirmDeleteBreak: 'Delete this break?',
+    confirmEndBreakAndClock: 'You are on break. End the break and clock out?',
+    breakBadge: 'BREAK',
+    breaksLabel: 'breaks',
+    breakLabel: 'break',
+    grossLabel: 'Gross',
+    breaksTotalLabel: 'Breaks',
+    netLabel: 'Net',
+    onBreakStatus: '⏸ ON BREAK',
+    pdfBreaks: 'BREAKS',
+    pdfGrossHours: 'Gross Hours',
+    pdfBreakTime: 'Break Time',
+    pdfNetHours: 'Net Hours (paid)',
+    pdfColBreakStart: 'Break Start',
+    pdfColBreakEnd: 'Break End',
+    pdfColDuration: 'Duration',
+    pdfNoBreaks: 'No breaks recorded',
+    alertBreakAfterStart: 'Break end must be after break start',
     confirmUnder15: 'Less than 15 min → 0h. Save anyway?',
     confirmDeleteEntry: 'Delete this entry?',
     confirmDeleteStop: 'Delete this stop?',
@@ -1009,7 +1158,7 @@ const TRANSLATIONS = {
     pdfColInvoice: 'Invoice #',
     pdfColRemarks: 'Remarks',
     pdfNoStops: 'No stops recorded',
-    pdfGenerated: 'Generated by Mis Horas',
+    pdfGenerated: 'Ziad Personal Driver Time Tracker',
     pdfDriverSignature: 'Driver signature: ______________________________',
     pdfDateLine: 'Date: ____________',
     pdfInProgress: '(in progress)',
@@ -1116,6 +1265,34 @@ const TRANSLATIONS = {
     rsNoStops: 'Aucun arrêt pour le moment',
     rsMarkDepartureBtn: 'MARQUER DÉPART MAINTENANT',
     rsLocationPrompt: 'Endroit (optionnel) :',
+    pauseBtn: '⏸ PAUSE',
+    resumeBtn: '▶ REPRENDRE',
+    onBreakSince: 'EN PAUSE depuis',
+    breaksSection: 'PAUSES',
+    addBreakNow: '+ PAUSE MAINTENANT',
+    endBreakNow: '+ TERMINER PAUSE',
+    noBreaks: 'Aucune pause enregistrée',
+    breakStart: 'DÉBUT PAUSE',
+    breakEnd: 'FIN PAUSE',
+    editBreak: 'MODIFIER PAUSE',
+    confirmDeleteBreak: 'Supprimer cette pause ?',
+    confirmEndBreakAndClock: 'Vous êtes en pause. Terminer la pause et pointer la sortie ?',
+    breakBadge: 'PAUSE',
+    breaksLabel: 'pauses',
+    breakLabel: 'pause',
+    grossLabel: 'Brut',
+    breaksTotalLabel: 'Pauses',
+    netLabel: 'Net',
+    onBreakStatus: '⏸ EN PAUSE',
+    pdfBreaks: 'PAUSES',
+    pdfGrossHours: 'Heures Brutes',
+    pdfBreakTime: 'Temps de Pause',
+    pdfNetHours: 'Heures Nettes (payées)',
+    pdfColBreakStart: 'Début Pause',
+    pdfColBreakEnd: 'Fin Pause',
+    pdfColDuration: 'Durée',
+    pdfNoBreaks: 'Aucune pause enregistrée',
+    alertBreakAfterStart: 'La fin de la pause doit être après le début',
     confirmUnder15: 'Moins de 15 min → 0h. Enregistrer quand même ?',
     confirmDeleteEntry: 'Supprimer cette entrée ?',
     confirmDeleteStop: 'Supprimer cet arrêt ?',
@@ -1150,7 +1327,7 @@ const TRANSLATIONS = {
     pdfColInvoice: 'N° Facture',
     pdfColRemarks: 'Remarques',
     pdfNoStops: 'Aucun arrêt enregistré',
-    pdfGenerated: 'Généré par Mis Horas',
+    pdfGenerated: 'Ziad Personal Driver Time Tracker',
     pdfDriverSignature: 'Signature chauffeur : ______________________________',
     pdfDateLine: 'Date : ____________',
     pdfInProgress: '(en cours)',
@@ -1233,12 +1410,42 @@ let settings = {
 };
 let currentRsEntryId = null;
 let editingStopId = null;
+let editingBreakId = null;
 
 // ─── Helpers ───
 const pad = (n) => String(n).padStart(2, '0');
 const roundTo15 = (h) => { const r = Math.round(h * 4) / 4; return r < 0.25 ? 0 : r; };
 const calcHours = (s, e) => Math.max(0, (new Date(e) - new Date(s)) / 3600000);
 const formatHours = (h) => { if (h === 0) return '0h 00m'; const hrs = Math.floor(h); const mins = Math.round((h - hrs) * 60); return `${hrs}h ${pad(mins)}m`; };
+
+// Pause helpers — each pause rounded individually (22min→15, 23min→30 via roundTo15 midpoint)
+function roundedPauseHours(pauses) {
+  if (!pauses || !pauses.length) return 0;
+  return pauses.reduce((sum, p) => {
+    if (!p.start || !p.end) return sum;
+    return sum + roundTo15(calcHours(p.start, p.end));
+  }, 0);
+}
+// Net paid hours = rounded gross − rounded pauses (never below 0)
+function computeNet(start, end, pauses) {
+  const gross = roundTo15(calcHours(start, end));
+  return Math.max(0, gross - roundedPauseHours(pauses));
+}
+// Live net for active session: open pause counts up to "now" so worked time freezes during break
+function liveNetRaw(session) {
+  const grossMs = new Date() - new Date(session.start);
+  let pauseMs = 0;
+  (session.pauses || []).forEach(p => {
+    const pStart = new Date(p.start);
+    const pEnd = p.end ? new Date(p.end) : new Date();
+    pauseMs += Math.max(0, pEnd - pStart);
+  });
+  return Math.max(0, (grossMs - pauseMs) / 3600000);
+}
+function getOpenPause(session) {
+  if (!session || !session.pauses) return null;
+  return session.pauses.find(p => p.start && !p.end) || null;
+}
 const formatTime = (d) => new Date(d).toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit', hour12: !uses24h() });
 const formatTime24 = (d) => { const x = new Date(d); return `${pad(x.getHours())}:${pad(x.getMinutes())}`; };
 const formatDate = (d) => new Date(d).toLocaleDateString(getLocale(), { weekday: 'short', month: 'short', day: 'numeric' });
@@ -1288,6 +1495,7 @@ function clockIn() {
     id: Date.now(),
     service: svc,
     note: note,
+    pauses: [],
     rs: {
       driver_name: settings.driver_name || '',
       driver_num: settings.driver_num || '',
@@ -1305,13 +1513,20 @@ function clockIn() {
 }
 function clockOut() {
   if (!activeSession) return;
-  const rawH = calcHours(activeSession.start, new Date().toISOString());
-  const rounded = roundTo15(rawH);
+  // If on break, end it at clock-out time
+  const openPause = getOpenPause(activeSession);
+  if (openPause) {
+    if (!confirm(t('confirmEndBreakAndClock'))) return;
+    openPause.end = new Date().toISOString();
+  }
+  const endISO = new Date().toISOString();
+  const rawH = calcHours(activeSession.start, endISO);
+  const net = computeNet(activeSession.start, endISO, activeSession.pauses);
   const note = document.getElementById('noteInput').value.trim() || activeSession.note || '';
-  if (rounded === 0 && !confirm(t('confirmUnder15'))) {
+  if (net === 0 && !confirm(t('confirmUnder15'))) {
     activeSession = null; saveData(); stopTimer(); render(); return;
   }
-  entries.unshift({ ...activeSession, end: new Date().toISOString(), rawHours: rawH, hours: rounded, note });
+  entries.unshift({ ...activeSession, end: endISO, rawHours: rawH, hours: net, note });
   activeSession = null;
   document.getElementById('serviceInput').value = '';
   document.getElementById('noteInput').value = '';
@@ -1323,13 +1538,65 @@ function startTimer() {
   timerInterval = setInterval(updateLiveTimer, 1000);
 }
 function stopTimer() { clearInterval(timerInterval); }
+
+// ─── Breaks (live) ───
+function startBreakNow() {
+  if (!activeSession) return;
+  if (getOpenPause(activeSession)) return; // already on break
+  if (!activeSession.pauses) activeSession.pauses = [];
+  activeSession.pauses.push({ id: Date.now(), start: new Date().toISOString(), end: null });
+  saveData();
+  render();
+}
+function endBreakNow() {
+  if (!activeSession) return;
+  const open = getOpenPause(activeSession);
+  if (!open) return;
+  open.end = new Date().toISOString();
+  saveData();
+  render();
+}
+function updatePauseUI() {
+  const pauseBtn = document.getElementById('pauseBtn');
+  const breakBanner = document.getElementById('breakBanner');
+  if (!activeSession) {
+    pauseBtn.classList.add('hidden');
+    breakBanner.classList.add('hidden');
+    return;
+  }
+  const open = getOpenPause(activeSession);
+  if (open) {
+    pauseBtn.classList.add('hidden');
+    breakBanner.classList.remove('hidden');
+    const mins = Math.floor(calcHours(open.start, new Date().toISOString()) * 60);
+    document.getElementById('breakBannerText').textContent = `${t('onBreakSince')} ${formatTime(open.start)}`;
+    document.getElementById('breakBannerTime').textContent = `${mins} min`;
+    document.getElementById('resumeBtn').textContent = t('resumeBtn');
+  } else {
+    pauseBtn.classList.remove('hidden');
+    breakBanner.classList.add('hidden');
+    pauseBtn.textContent = t('pauseBtn');
+  }
+}
+
 function updateLiveTimer() {
   if (!activeSession) return;
-  const raw = calcHours(activeSession.start, new Date().toISOString());
-  const rounded = roundTo15(raw);
-  document.getElementById('clockTime').textContent = formatHours(raw);
-  document.getElementById('clockRounded').textContent = `≈ ${rounded.toFixed(2)}h ${t('roundedLabel')}`;
+  const net = liveNetRaw(activeSession);
+  const rounded = roundTo15(net);
+  const openPause = getOpenPause(activeSession);
+  const clockTimeEl = document.getElementById('clockTime');
+  const clockRoundedEl = document.getElementById('clockRounded');
+  if (openPause) {
+    // On break: show break duration counting up, worked time frozen
+    const breakMin = Math.floor(calcHours(openPause.start, new Date().toISOString()) * 60);
+    clockTimeEl.textContent = formatHours(net);
+    clockRoundedEl.textContent = `${t('onBreakStatus')} • ${breakMin} min`;
+  } else {
+    clockTimeEl.textContent = formatHours(net);
+    clockRoundedEl.textContent = `≈ ${rounded.toFixed(2)}h ${t('roundedLabel')}`;
+  }
   updateSummary();
+  updatePauseUI();
   // If route sheet open for active session, update its total live
   if (isCurrentRsActive()) {
     updateTotalDisplay(activeSession);
@@ -1358,7 +1625,7 @@ function filterEntries() {
 function updateSummary() {
   const filtered = filterEntries();
   let total = filtered.reduce((s, e) => s + (e.hours || 0), 0);
-  if (activeSession) total += roundTo15(calcHours(activeSession.start, new Date().toISOString()));
+  if (activeSession) total += roundTo15(liveNetRaw(activeSession));
   const labels = { today: t('totalToday'), week: t('totalWeek'), biweek: t('totalBiweek'), all: t('totalAll') };
   document.getElementById('summaryLabel').textContent = labels[currentView];
   document.getElementById('summaryTotal').textContent = formatHours(total);
@@ -1427,6 +1694,9 @@ function render() {
     activeRsBtn.classList.add('hidden');
   }
 
+  // Pause UI
+  updatePauseUI();
+
   // Summary
   updateSummary();
 
@@ -1480,6 +1750,8 @@ function renderEntries() {
 function renderEntry(e) {
   const crosses = dateKey(e.start) !== dateKey(e.end);
   const stopCount = e.rs?.stops?.length || 0;
+  const breakCount = e.pauses?.length || 0;
+  const breakH = roundedPauseHours(e.pauses);
   return `<div class="entry" onclick="openRouteSheet(${e.id})">
     <div class="entry-top">
       <div class="entry-left">
@@ -1489,6 +1761,7 @@ function renderEntry(e) {
         ${e.manual ? '<span class="badge badge-manual">' + t('manual') + '</span>' : ''}
         ${e.hours === 0 ? '<span class="badge badge-under15">' + t('under15') + '</span>' : ''}
         ${stopCount > 0 ? `<span class="entry-rs-badge">📋 ${stopCount} ${stopCount === 1 ? t('stop1') : t('stopMany')}</span>` : ''}
+        ${breakCount > 0 ? `<span class="entry-rs-badge" style="background:rgba(255,180,0,0.1);border-color:rgba(255,180,0,0.25);color:rgba(255,200,80,0.85)">⏸ ${breakH.toFixed(2)}h</span>` : ''}
       </div>
       <div class="entry-right">
         <span class="entry-hours">${formatHours(e.hours)}</span>
@@ -1558,7 +1831,7 @@ function saveEdit(id) {
   const rawH = calcHours(s, e);
   const svc = document.getElementById('editSvc').value.trim();
   const note = document.getElementById('editNote').value.trim();
-  entries = entries.map(en => en.id === id ? { ...en, start: s.toISOString(), end: e.toISOString(), rawHours: rawH, hours: roundTo15(rawH), service: svc, note, edited: true } : en);
+  entries = entries.map(en => en.id === id ? { ...en, start: s.toISOString(), end: e.toISOString(), rawHours: rawH, hours: computeNet(s.toISOString(), e.toISOString(), en.pauses), service: svc, note, edited: true } : en);
   editingId = null;
   saveData(); render();
 }
@@ -1591,6 +1864,7 @@ function saveManual() {
   entries.unshift({
     id: Date.now(), start: s.toISOString(), end: e.toISOString(),
     rawHours: rawH, hours: roundTo15(rawH),
+    pauses: [],
     service: document.getElementById('manualService').value.trim(),
     note: document.getElementById('manualNote').value.trim(),
     manual: true
@@ -1754,6 +2028,7 @@ function ensureRouteSheet(entry) {
       stops: []
     };
   }
+  if (!entry.pauses) entry.pauses = [];
   return entry.rs;
 }
 
@@ -1791,6 +2066,7 @@ function openRouteSheet(entryId) {
 
   updateTotalDisplay(entry);
   renderStops();
+  renderBreaks();
 
   document.getElementById('rsOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1803,7 +2079,10 @@ function closeRouteSheet() {
   document.body.style.overflow = '';
   document.getElementById('rsStopEditor').classList.add('hidden');
   document.getElementById('rsManualStopForm').classList.add('hidden');
+  document.getElementById('rsBreakEditor').classList.add('hidden');
+  document.getElementById('rsManualBreakForm').classList.add('hidden');
   editingStopId = null;
+  editingBreakId = null;
   currentRsEntryId = null;
   render();
   // Pop history state if we pushed one
@@ -1866,7 +2145,7 @@ function updateRouteSheetTimes() {
   entry.end = newEnd.toISOString();
   const raw = calcHours(entry.start, entry.end);
   entry.rawHours = raw;
-  entry.hours = roundTo15(raw);
+  entry.hours = computeNet(entry.start, entry.end, entry.pauses);
   entry.edited = true;
   saveData();
   updateTotalDisplay(entry);
@@ -1874,11 +2153,18 @@ function updateRouteSheetTimes() {
 
 function updateTotalDisplay(entry) {
   if (isCurrentRsActive()) {
-    const rawH = calcHours(entry.start, new Date().toISOString());
-    const rounded = roundTo15(rawH);
-    document.getElementById('rsTotalDisplay').textContent = t('rsInProgressTotal', { hours: formatHours(rawH), decimal: rounded.toFixed(2) });
+    const net = liveNetRaw(entry);
+    const rounded = roundTo15(net);
+    document.getElementById('rsTotalDisplay').textContent = t('rsInProgressTotal', { hours: formatHours(net), decimal: rounded.toFixed(2) });
   } else {
-    document.getElementById('rsTotalDisplay').textContent = `${t('rsTotalLabel')}: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`;
+    const pauseH = roundedPauseHours(entry.pauses);
+    if (pauseH > 0) {
+      const gross = roundTo15(calcHours(entry.start, entry.end));
+      document.getElementById('rsTotalDisplay').textContent =
+        `${t('netLabel')}: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h) • ${t('grossLabel')} ${gross.toFixed(2)}h − ${t('breaksTotalLabel')} ${pauseH.toFixed(2)}h`;
+    } else {
+      document.getElementById('rsTotalDisplay').textContent = `${t('rsTotalLabel')}: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`;
+    }
   }
 }
 
@@ -2076,6 +2362,168 @@ function saveStopEdit() {
   renderStops();
 }
 
+// ─── Breaks (route sheet) ───
+function recalcEntryNet(entry) {
+  if (isCurrentRsActive()) {
+    updateTotalDisplay(entry);
+    return;
+  }
+  entry.hours = computeNet(entry.start, entry.end, entry.pauses);
+  updateTotalDisplay(entry);
+}
+
+function renderBreaks() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  if (!entry.pauses) entry.pauses = [];
+  const pauses = [...entry.pauses].sort((a, b) => new Date(a.start) - new Date(b.start));
+  const list = document.getElementById('rsBreaksList');
+
+  // Update add-break button text depending on open break
+  const open = getOpenPause(entry);
+  const addBtn = document.getElementById('rsAddBreakBtn');
+  if (addBtn) addBtn.textContent = open ? t('endBreakNow') : t('addBreakNow');
+
+  if (pauses.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--w20);font-size:12px">${t('noBreaks')}</div>`;
+    return;
+  }
+  list.innerHTML = pauses.map((p, i) => {
+    const isOpen = p.start && !p.end;
+    const durMin = p.end ? Math.round(calcHours(p.start, p.end) * 60) : Math.floor(calcHours(p.start, new Date().toISOString()) * 60);
+    const roundedH = p.end ? roundTo15(calcHours(p.start, p.end)) : 0;
+    return `<div class="rs-stop ${isOpen ? 'active' : ''}" style="${isOpen ? 'border-color:rgba(255,180,0,0.3);background:rgba(255,180,0,0.05)' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="flex:1">
+          <span class="rs-stop-num" style="background:rgba(255,180,0,0.15);color:rgba(255,200,80,0.9)">⏸</span>
+          <span class="rs-stop-times">${formatTime(p.start)}<span class="arrow">→</span>${p.end ? formatTime(p.end) : '...'}</span>
+          <span style="font-size:11px;color:var(--w40);margin-left:8px">${durMin} min${p.end ? ` (≈ ${roundedH.toFixed(2)}h)` : ''}</span>
+        </div>
+        <div style="display:flex;gap:4px">
+          ${isOpen ? `<button class="rs-stop-action-btn depart" onclick="endOpenBreakRs(${p.id})">${t('rsLeaveNow')}</button>` : ''}
+          <button class="rs-stop-action-btn" onclick="startEditBreak(${p.id})">✎</button>
+          <button class="rs-stop-action-btn danger" onclick="deleteBreak(${p.id})">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addBreakNowRs() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  if (!entry.pauses) entry.pauses = [];
+  const open = getOpenPause(entry);
+  if (open) {
+    // End the open break
+    open.end = new Date().toISOString();
+  } else {
+    entry.pauses.push({ id: Date.now(), start: new Date().toISOString(), end: null });
+  }
+  saveData();
+  recalcEntryNet(entry);
+  renderBreaks();
+  if (activeSession && entry.id === activeSession.id) updatePauseUI();
+}
+
+function endOpenBreakRs(breakId) {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const p = entry.pauses.find(x => x.id === breakId);
+  if (!p) return;
+  p.end = new Date().toISOString();
+  saveData();
+  recalcEntryNet(entry);
+  renderBreaks();
+  if (activeSession && entry.id === activeSession.id) updatePauseUI();
+}
+
+function deleteBreak(breakId) {
+  if (!confirm(t('confirmDeleteBreak'))) return;
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  entry.pauses = entry.pauses.filter(x => x.id !== breakId);
+  saveData();
+  recalcEntryNet(entry);
+  renderBreaks();
+  if (activeSession && entry.id === activeSession.id) updatePauseUI();
+}
+
+function toggleManualBreak() {
+  const form = document.getElementById('rsManualBreakForm');
+  form.classList.toggle('hidden');
+  if (!form.classList.contains('hidden')) {
+    document.getElementById('mbStart').value = '';
+    document.getElementById('mbEnd').value = '';
+  }
+}
+
+function saveManualBreak() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const startV = document.getElementById('mbStart').value;
+  const endV = document.getElementById('mbEnd').value;
+  if (!startV || !endV) { alert(t('alertNeedArrival')); return; }
+  const date = dateKey(entry.start);
+  const startISO = new Date(`${date}T${startV}:00`).toISOString();
+  let endDate = date;
+  if (endV < startV) {
+    const next = new Date(entry.start); next.setDate(next.getDate() + 1);
+    endDate = dateKey(next);
+  }
+  const endISO = new Date(`${endDate}T${endV}:00`).toISOString();
+  if (new Date(endISO) <= new Date(startISO)) { alert(t('alertBreakAfterStart')); return; }
+  if (!entry.pauses) entry.pauses = [];
+  entry.pauses.push({ id: Date.now(), start: startISO, end: endISO });
+  saveData();
+  recalcEntryNet(entry);
+  toggleManualBreak();
+  renderBreaks();
+}
+
+function startEditBreak(breakId) {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const p = entry.pauses.find(x => x.id === breakId);
+  if (!p) return;
+  editingBreakId = breakId;
+  document.getElementById('ebStart').value = p.start ? formatTime24(p.start) : '';
+  document.getElementById('ebEnd').value = p.end ? formatTime24(p.end) : '';
+  document.getElementById('rsBreakEditor').classList.remove('hidden');
+  document.getElementById('rsBreakEditor').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelBreakEdit() {
+  editingBreakId = null;
+  document.getElementById('rsBreakEditor').classList.add('hidden');
+}
+
+function saveBreakEdit() {
+  const entry = getCurrentRsEntry();
+  if (!entry || !editingBreakId) return;
+  const p = entry.pauses.find(x => x.id === editingBreakId);
+  if (!p) return;
+  const date = dateKey(entry.start);
+  const startV = document.getElementById('ebStart').value;
+  const endV = document.getElementById('ebEnd').value;
+  if (startV) p.start = new Date(`${date}T${startV}:00`).toISOString();
+  if (endV) {
+    let endDate = date;
+    if (startV && endV < startV) {
+      const next = new Date(entry.start); next.setDate(next.getDate() + 1);
+      endDate = dateKey(next);
+    }
+    p.end = new Date(`${endDate}T${endV}:00`).toISOString();
+  } else {
+    p.end = null;
+  }
+  if (p.end && new Date(p.end) <= new Date(p.start)) { alert(t('alertBreakAfterStart')); return; }
+  saveData();
+  recalcEntryNet(entry);
+  cancelBreakEdit();
+  renderBreaks();
+}
+
 // ─── PDF Export ───
 function formatPdfTime(d) {
   return new Date(d).toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit', hour12: !uses24h() });
@@ -2093,7 +2541,10 @@ async function exportRouteSheetPDF() {
   if (isActive && !confirm(t('confirmExportActive'))) return;
   // For active session, use now as effective end time
   const effectiveEnd = isActive ? new Date().toISOString() : entry.end;
-  const effectiveHours = isActive ? roundTo15(calcHours(entry.start, effectiveEnd)) : entry.hours;
+  const grossHours = roundTo15(calcHours(entry.start, effectiveEnd));
+  const breakHours = roundedPauseHours(entry.pauses);
+  const netHours = Math.max(0, grossHours - breakHours);
+  const hasBreaks = (entry.pauses && entry.pauses.length > 0);
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'pt', 'a4');
@@ -2134,17 +2585,25 @@ async function exportRouteSheetPDF() {
     [t('pdfDriverName'), entry.rs.driver_name || '—'],
     [t('pdfStartTime'), formatPdfTime(entry.start)],
     [t('pdfEndTime'), formatPdfTime(effectiveEnd) + (isActive ? ' ' + t('pdfInProgress') : '')],
-    [t('pdfTotalHours'), `${formatHours(effectiveHours)} (${effectiveHours.toFixed(2)}h)`],
-    [t('pdfDriverNum'), entry.rs.driver_num || '—'],
-    [t('pdfTruckUnit'), entry.rs.truck_unit || '—'],
-    [t('pdfTrailer'), entry.rs.trailer || '—'],
-    [t('pdfPlate'), entry.rs.plate || '—'],
-    ['', ''],
-    [t('pdfKmStart'), entry.rs.km_start || '—'],
-    [t('pdfKmEnd'), entry.rs.km_end || '—'],
-    [t('pdfTotalKm'), totalKm !== '' ? String(totalKm) : '—'],
-    ['', '']
   ];
+  // Hours block — show gross/break/net only when there are breaks
+  if (hasBreaks) {
+    headerData.push([t('pdfGrossHours'), `${formatHours(grossHours)} (${grossHours.toFixed(2)}h)`]);
+    headerData.push([t('pdfBreakTime'), `${formatHours(breakHours)} (${breakHours.toFixed(2)}h)`]);
+    headerData.push([t('pdfNetHours'), `${formatHours(netHours)} (${netHours.toFixed(2)}h)`]);
+    headerData.push(['', '']);
+  } else {
+    headerData.push([t('pdfTotalHours'), `${formatHours(netHours)} (${netHours.toFixed(2)}h)`]);
+  }
+  headerData.push([t('pdfDriverNum'), entry.rs.driver_num || '—']);
+  headerData.push([t('pdfTruckUnit'), entry.rs.truck_unit || '—']);
+  headerData.push([t('pdfTrailer'), entry.rs.trailer || '—']);
+  headerData.push([t('pdfPlate'), entry.rs.plate || '—']);
+  headerData.push(['', '']);
+  headerData.push([t('pdfKmStart'), entry.rs.km_start || '—']);
+  headerData.push([t('pdfKmEnd'), entry.rs.km_end || '—']);
+  headerData.push([t('pdfTotalKm'), totalKm !== '' ? String(totalKm) : '—']);
+  if (headerData.length % 2 !== 0) headerData.push(['', '']);
 
   for (let i = 0; i < headerData.length; i += 2) {
     const yPos = y + Math.floor(i / 2) * rowH;
@@ -2260,7 +2719,59 @@ async function exportRouteSheetPDF() {
     });
   }
 
+  // Breaks table (only if there are breaks)
+  if (hasBreaks) {
+    y += 20;
+    if (y > H - 140) { doc.addPage(); y = M; }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(20);
+    doc.text(t('pdfBreaks'), M, y);
+    y += 10;
+    doc.setDrawColor(40);
+    doc.setLineWidth(1);
+    doc.line(M, y, W - M, y);
+    y += 8;
+
+    const bCols = [30, 130, 130, 125]; // # Start End Duration
+    const bTotalW = bCols.reduce((a,b)=>a+b,0);
+    const bHeaders = [t('pdfColNum'), t('pdfColBreakStart'), t('pdfColBreakEnd'), t('pdfColDuration')];
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(240);
+    doc.rect(M, y, bTotalW, 18, 'F');
+    doc.setTextColor(60);
+    let bx2 = M;
+    bHeaders.forEach((h, i) => { doc.text(h, bx2 + 4, y + 12); bx2 += bCols[i]; });
+    doc.setDrawColor(200);
+    doc.setLineWidth(0.5);
+    doc.rect(M, y, bTotalW, 18);
+    y += 18;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0);
+    const sortedPauses = [...entry.pauses].sort((a, b) => new Date(a.start) - new Date(b.start));
+    sortedPauses.forEach((p, idx) => {
+      if (y + 20 > H - 80) { doc.addPage(); y = M; }
+      const dur = p.end ? roundTo15(calcHours(p.start, p.end)) : 0;
+      const durTxt = p.end ? `${formatHours(dur)} (${dur.toFixed(2)}h)` : t('pdfInProgress');
+      const row = [String(idx + 1), formatPdfTime(p.start), p.end ? formatPdfTime(p.end) : '—', durTxt];
+      let cx = M;
+      row.forEach((d, i) => { doc.text(String(d), cx + 4, y + 13); cx += bCols[i]; });
+      doc.rect(M, y, bTotalW, 20);
+      let bbx = M;
+      for (let i = 0; i < bCols.length - 1; i++) { bbx += bCols[i]; doc.line(bbx, y, bbx, y + 20); }
+      y += 20;
+    });
+    // Break total row
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${t('breaksTotalLabel')}: ${formatHours(breakHours)} (${breakHours.toFixed(2)}h)`, M + 4, y + 13);
+    y += 20;
+    doc.setFont('helvetica', 'normal');
+  }
+
   // Footer
+  if (y > H - 80) { doc.addPage(); y = M; }
   y = H - 60;
   doc.setFontSize(9);
   doc.setTextColor(120);
@@ -2299,9 +2810,13 @@ function exportRouteSheetCSV() {
   if (!entry) return;
   const isActive = isCurrentRsActive();
   const effectiveEnd = isActive ? new Date().toISOString() : entry.end;
-  const effectiveHours = isActive ? roundTo15(calcHours(entry.start, effectiveEnd)) : entry.hours;
+  const grossHours = roundTo15(calcHours(entry.start, effectiveEnd));
+  const breakHours = roundedPauseHours(entry.pauses);
+  const netHours = Math.max(0, grossHours - breakHours);
+  const hasBreaks = (entry.pauses && entry.pauses.length > 0);
   const rs = entry.rs || {};
   const stops = [...(rs.stops || [])].sort((a, b) => new Date(a.arrived) - new Date(b.arrived));
+  const pauses = [...(entry.pauses || [])].sort((a, b) => new Date(a.start) - new Date(b.start));
   const totalKm = (rs.km_end && rs.km_start) ? (Number(rs.km_end) - Number(rs.km_start)) : '';
 
   const rows = [];
@@ -2314,7 +2829,13 @@ function exportRouteSheetCSV() {
   rows.push([t('pdfDriverNum'), rs.driver_num || '']);
   rows.push([t('pdfStartTime'), formatTime24(entry.start)]);
   rows.push([t('pdfEndTime'), formatTime24(effectiveEnd) + (isActive ? ' ' + t('pdfInProgress') : '')]);
-  rows.push([t('pdfTotalHours'), effectiveHours.toFixed(2)]);
+  if (hasBreaks) {
+    rows.push([t('pdfGrossHours'), grossHours.toFixed(2)]);
+    rows.push([t('pdfBreakTime'), breakHours.toFixed(2)]);
+    rows.push([t('pdfNetHours'), netHours.toFixed(2)]);
+  } else {
+    rows.push([t('pdfTotalHours'), netHours.toFixed(2)]);
+  }
   rows.push([t('pdfTruckUnit'), rs.truck_unit || '']);
   rows.push([t('pdfTrailer'), rs.trailer || '']);
   rows.push([t('pdfPlate'), rs.plate || '']);
@@ -2335,6 +2856,21 @@ function exportRouteSheetCSV() {
       `"${(s.remarks || '').replace(/"/g, '""')}"`
     ]);
   });
+  if (hasBreaks) {
+    rows.push([]);
+    rows.push([t('pdfBreaks')]);
+    rows.push([t('pdfColNum'), t('pdfColBreakStart'), t('pdfColBreakEnd'), t('pdfColDuration') + ' (h)']);
+    pauses.forEach((p, i) => {
+      const dur = p.end ? roundTo15(calcHours(p.start, p.end)) : 0;
+      rows.push([
+        i + 1,
+        formatTime24(p.start),
+        p.end ? formatTime24(p.end) : '',
+        dur.toFixed(2)
+      ]);
+    });
+    rows.push(['', '', t('breaksTotalLabel'), breakHours.toFixed(2)]);
+  }
 
   const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
