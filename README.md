@@ -1,51 +1,76 @@
-# Mis Horas — PWA Time Tracker
+# Ziad Personal Driver Time Tracker — v9
 
-## Instalación en Android (3 minutos)
+App web (PWA) para registrar horas de trabajo, pausas y hojas de ruta. Instalable en Android/PC, funciona offline, trilingüe (ES / EN / FR).
 
-### Opción A: GitHub Pages (GRATIS, recomendado)
+---
 
-1. **Crea cuenta en GitHub** si no tienes: https://github.com/signup
+## Instalación en Android
 
-2. **Crea un repositorio nuevo:**
-   - Ve a https://github.com/new
-   - Nombre: `mis-horas`
-   - Selecciona **Public**
-   - Click **Create repository**
+1. Abre en Chrome: `https://lordzirax.github.io/Time-Tracker-Hesman-Transport/`
+2. Menú ⋮ → **Instalar app** (o "Agregar a pantalla de inicio")
+3. Aparece como app con su propio ícono, funciona sin internet
 
-3. **Sube los archivos:**
-   - En el repo nuevo, click **"uploading an existing file"**
-   - Arrastra TODOS los archivos de esta carpeta: `index.html`, `manifest.json`, `sw.js`, `icon-192.png`, `icon-512.png`
-   - Click **Commit changes**
+## Abrir en PC
 
-4. **Activa GitHub Pages:**
-   - Ve a **Settings** → **Pages** (menú lateral izquierdo)
-   - Source: **Deploy from a branch**
-   - Branch: **main** / **(root)**
-   - Click **Save**
-   - En 1-2 minutos tu app estará en: `https://TU-USUARIO.github.io/mis-horas/`
+- Online: misma URL en cualquier navegador
+- Offline: descarga el ZIP, extrae y abre `index.html`
 
-5. **Instala en Android:**
-   - Abre la URL en Chrome
-   - Chrome mostrará un banner "Agregar a pantalla de inicio" o:
-   - Toca el menú ⋮ → **"Instalar app"** o **"Agregar a pantalla de inicio"**
-   - Listo! Aparece como app con ícono propio
-
-### Opción B: Netlify (también gratis)
-
-1. Ve a https://app.netlify.com/drop
-2. Arrastra la carpeta completa
-3. Te da una URL automática
-4. Abre en Chrome → Instalar como app
+> Los datos NO se sincronizan entre dispositivos. Cada uno guarda los suyos en local. Para pasar datos: exporta el respaldo JSON y restáuralo en el otro equipo.
 
 ---
 
 ## Funciones
-- Un botón para entrada/salida
-- Campo de servicio/empresa con chips rápidos
-- Notas explicativas por turno
-- Redondeo automático cada 15 minutos (0.25h)
-- Turnos que cruzan medianoche
-- Entradas retroactivas
-- Exportación CSV por rango de fechas
-- Funciona 100% offline una vez instalada
-- Datos guardados en localStorage del teléfono
+
+### Registro de tiempo
+- Un botón grande para ENTRADA / SALIDA
+- Redondeo automático a 15 min (22→15, 23→30)
+- Timer en vivo mientras trabajas
+
+### Pausas
+- Botón ⏸ PAUSA en vivo (congela el tiempo trabajado)
+- En hojas de ruta y en entradas retroactivas (varias pausas)
+- Se descuentan del total; redondeo 15 min individual
+
+### Servicios y pago
+- Registra servicios en ⚙ Ajustes → MIS SERVICIOS
+  - Por hora: $X/h + bonus opcional por hora
+  - Tarifa fija: $Y por jornada
+- El monto bruto se calcula sobre horas netas
+- Se muestra por entrada, por período y en reportes
+
+### Hojas de ruta
+- Una por día, con cliente, conductor, vehículo, KM
+- Paradas con llegada/salida, ubicación, palettes, factura, observaciones
+- Pausas con detalle
+- Export PDF (limpio) y CSV en el idioma de la app
+
+### Historial plegable
+- Pestañas: Today / Week / Biweekly / Monthly
+- Secciones plegables por rango, con total de horas y $
+- El período más reciente se abre solo
+
+### Exportar para RH
+- 👁 Ver resultados (tabla en la app)
+- 📄 PDF de reporte por rango de fechas
+- 📊 CSV con horas, pausas, montos y notas
+
+### Respaldo
+- Descarga/restaura JSON con todos los datos, servicios y ajustes
+- Consejo: respaldar cada viernes
+
+---
+
+## Idiomas
+Español / English / Français. Auto-detecta el idioma del teléfono; cambiable en ⚙ Ajustes.
+
+## Archivos
+- `index.html` — la app completa
+- `manifest.json` — config PWA
+- `sw.js` — service worker (offline + cache)
+- `icon-192.png`, `icon-512.png` — íconos
+
+## Actualizar
+Reemplaza los archivos en el repo. El service worker (v9) refresca el cache solo. Si ves la versión vieja: borra solo "caché/imágenes", nunca "datos del sitio" (ahí están tus registros).
+
+## Privacidad
+Todos los datos viven en el almacenamiento local del dispositivo. Nada se envía a ningún servidor.
