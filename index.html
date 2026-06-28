@@ -247,6 +247,61 @@ input[type=number] { -moz-appearance: textfield; }
 .day-total { font-size: 13px; font-weight: 600; color: #fff; }
 .day-total-dec { font-size: 11px; color: var(--w35); font-weight: 400; }
 .day-group { margin-bottom: 20px; animation: slideIn 0.3s ease both; }
+/* New-day area */
+.newday-area { padding: 0 20px; margin-bottom: 18px; }
+.newday-btn {
+  width: 100%; padding: 20px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(0,200,255,0.15), rgba(0,255,136,0.12));
+  border: 1px solid rgba(0,255,136,0.3); color: #fff;
+  font-size: 16px; font-weight: 700; letter-spacing: 0.5px;
+  cursor: pointer; font-family: var(--font);
+}
+.newday-btn:active { transform: scale(0.98); }
+#inProgressBanner {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 18px; border-radius: 16px; margin-bottom: 12px; cursor: pointer;
+  background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.3);
+  animation: pulse 2.5s infinite;
+}
+.ip-left { display: flex; align-items: center; gap: 12px; }
+.ip-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+.ip-label { font-size: 11px; font-weight: 700; color: var(--green); letter-spacing: 0.5px; }
+.ip-service { font-size: 13px; color: #fff; margin-top: 2px; }
+.ip-right { display: flex; align-items: center; gap: 10px; }
+.ip-time { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: #fff; }
+.ip-arrow { color: var(--green); font-size: 18px; }
+/* Time field with "now" shortcut */
+.time-with-now { display: flex; gap: 4px; align-items: stretch; }
+.time-with-now .input-base { flex: 1; }
+.now-btn {
+  flex-shrink: 0; width: 38px; border-radius: 8px;
+  background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.3);
+  color: var(--green); font-size: 14px; cursor: pointer; font-family: var(--font);
+}
+.now-btn:active { transform: scale(0.92); background: rgba(0,255,136,0.25); }
+/* Stop / break cards (inline editable) */
+.stop-card {
+  padding: 12px; margin-bottom: 8px; border-radius: 10px;
+  background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08);
+}
+.stop-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.stop-card-head .rs-stop-num { margin: 0; }
+.stop-del {
+  margin-left: auto; background: none; border: none;
+  color: rgba(255,70,70,0.45); font-size: 14px; cursor: pointer; padding: 2px 6px;
+}
+.rs-finish-btn {
+  width: 100%; padding: 14px; border-radius: 12px;
+  background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.35);
+  color: var(--green); font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font);
+}
+.rs-finish-btn:active { transform: scale(0.98); }
+.rs-reopen-btn {
+  width: 100%; padding: 10px; border-radius: 10px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+  color: var(--w50); font-size: 12px; cursor: pointer; font-family: var(--font);
+}
+.entry-inprogress { border-color: rgba(0,255,136,0.3) !important; background: rgba(0,255,136,0.04) !important; }
 .period-group { margin-bottom: 10px; }
 .period-header {
   display: flex; justify-content: space-between; align-items: center;
@@ -601,30 +656,22 @@ input[type=number] { -moz-appearance: textfield; }
   </div>
 </div>
 
-<div class="service-area">
-  <input type="text" class="input-base" id="serviceInput" data-i18n-placeholder="placeholderService" placeholder="Servicio / Empresa...">
-  <div class="service-chips" id="serviceChips"></div>
-  <input type="text" class="input-base notes-input" id="noteInput" data-i18n-placeholder="placeholderNotes" placeholder="Notas (opcional): razón de overtime, detalles...">
-</div>
-
-<div class="clock-area">
-  <button class="clock-btn out" id="clockBtn" onclick="toggleClock()">
-    <div class="clock-label" id="clockLabel">ENTRADA</div>
-    <div class="clock-time" id="clockTime" style="font-size:34px">▶</div>
-    <div class="clock-since hidden" id="clockSince"></div>
-    <div class="clock-rounded hidden" id="clockRounded"></div>
-  </button>
-  <div class="clock-service-label hidden" id="clockServiceLabel"></div>
-  <div class="break-banner hidden" id="breakBanner">
-    <div>
-      <div class="break-banner-text" id="breakBannerText">EN PAUSA</div>
-      <div class="break-banner-time" id="breakBannerTime"></div>
+<div class="newday-area">
+  <div id="inProgressBanner" class="hidden" onclick="openInProgressDay()">
+    <div class="ip-left">
+      <div class="ip-dot"></div>
+      <div>
+        <div class="ip-label" id="ipLabel">DÍA EN PROGRESO</div>
+        <div class="ip-service" id="ipService"></div>
+      </div>
     </div>
-    <button class="break-resume-btn" id="resumeBtn" onclick="endBreakNow()">▶</button>
+    <div class="ip-right">
+      <div class="ip-time" id="ipTime">0h 00m</div>
+      <div class="ip-arrow">→</div>
+    </div>
   </div>
-  <button class="pause-btn hidden" id="pauseBtn" onclick="startBreakNow()">⏸ PAUSA</button>
-  <button class="active-rs-btn hidden" id="activeRsBtn" onclick="openActiveRouteSheet()">
-    📋
+  <button class="newday-btn" id="newDayBtn" onclick="createNewDay()">
+    <span data-i18n="newDayBtn">+ NUEVO DÍA / REGISTRO</span>
   </button>
 </div>
 
@@ -680,51 +727,6 @@ input[type=number] { -moz-appearance: textfield; }
 
 <div class="entries" id="entriesContainer"></div>
 
-<div style="padding:0 20px" id="manualArea">
-  <button class="manual-toggle" id="manualToggle" data-i18n="addRetroactive" onclick="showManualForm()">+ AGREGAR ENTRADA RETROACTIVA</button>
-  <div class="manual-form hidden" id="manualForm">
-    <div class="manual-title" data-i18n="retroactiveTitle">ENTRADA RETROACTIVA</div>
-    <input type="text" class="input-base" id="manualService" placeholder="Servicio / Empresa..." style="margin-bottom:6px; font-size:13px">
-    <div class="service-chips" id="manualServiceChips" style="margin-bottom:10px"></div>
-    <div class="manual-dates">
-      <div>
-        <div class="manual-date-label" data-i18n="startLabel">INICIO</div>
-        <div style="display:flex;align-items:center;gap:4px">
-          <input type="date" class="date-input" id="manualStartDate">
-          <input type="number" min="0" max="23" class="time-input" id="manualStartH" value="09">
-          <span class="edit-colon">:</span>
-          <input type="number" min="0" max="59" class="time-input" id="manualStartM" value="00">
-        </div>
-      </div>
-      <div class="arrow">→</div>
-      <div>
-        <div class="manual-date-label"><span data-i18n="endLabel">FIN</span> <span class="manual-date-sublabel" data-i18n="endLabelHint">(cambia fecha si cruzó 12AM)</span></div>
-        <div style="display:flex;align-items:center;gap:4px">
-          <input type="date" class="date-input" id="manualEndDate">
-          <input type="number" min="0" max="23" class="time-input" id="manualEndH" value="17">
-          <span class="edit-colon">:</span>
-          <input type="number" min="0" max="59" class="time-input" id="manualEndM" value="00">
-        </div>
-      </div>
-    </div>
-    <input type="text" class="input-base" id="manualNote" data-i18n-placeholder="placeholderRetroNotes" placeholder="Notas: razón de overtime, qué pasó, contexto..." style="margin-bottom:14px; font-size:11px">
-
-    <div class="manual-pauses-section">
-      <div class="manual-pauses-header">
-        <span data-i18n="breaksSection">PAUSAS</span>
-        <span class="manual-pauses-optional" data-i18n="optionalLabel">(opcional)</span>
-      </div>
-      <div id="manualPausesList"></div>
-      <button class="manual-add-pause" id="manualAddPauseBtn" onclick="addManualPauseRow()" data-i18n="addPauseRow">+ Agregar pausa</button>
-    </div>
-
-    <div class="manual-btns">
-      <button class="manual-save" data-i18n="save" onclick="saveManual()">GUARDAR</button>
-      <button class="manual-cancel-btn" data-i18n="cancel" onclick="hideManualForm()">CANCELAR</button>
-    </div>
-  </div>
-</div>
-
 <!-- Backup / Restore -->
 <div style="padding:0 20px; margin-top:20px">
   <button class="export-toggle" id="backupToggle" data-i18n="backupTitle" onclick="toggleBackup()" style="border-style:dashed">🔒 RESPALDO DE DATOS</button>
@@ -764,18 +766,30 @@ input[type=number] { -moz-appearance: textfield; }
     <div class="rs-field">
       <div class="rs-field-label" data-i18n="rsClientService">CLIENT / SERVICE</div>
       <input type="text" class="input-base" id="rsClient" oninput="updateRouteSheet()">
+      <div class="service-chips" id="rsServiceChips" style="margin-top:6px"></div>
+    </div>
+    <div class="rs-field">
+      <div class="rs-field-label" data-i18n="rsDate">FECHA</div>
+      <input type="date" class="input-base" id="rsDate" onchange="updateRouteSheetDate()">
     </div>
     <div class="rs-row-2">
       <div class="rs-field">
         <div class="rs-field-label" data-i18n="rsStartTime">START TIME</div>
-        <input type="time" class="input-base" id="rsStartTime" onchange="updateRouteSheetTimes()">
+        <div class="time-with-now">
+          <input type="time" class="input-base" id="rsStartTime" onchange="updateRouteSheetTimes()">
+          <button class="now-btn" onclick="setNowField('rsStartTime')" title="ahora">●</button>
+        </div>
       </div>
       <div class="rs-field">
         <div class="rs-field-label" data-i18n="rsEndTime">END TIME</div>
-        <input type="time" class="input-base" id="rsEndTime" onchange="updateRouteSheetTimes()">
+        <div class="time-with-now">
+          <input type="time" class="input-base" id="rsEndTime" onchange="updateRouteSheetTimes()">
+          <button class="now-btn" onclick="setNowField('rsEndTime')" title="ahora">●</button>
+        </div>
       </div>
     </div>
     <div class="rs-total-display" id="rsTotalDisplay">Total: 0h 00m</div>
+    <div id="rsFinishRow" style="margin-top:10px"></div>
   </div>
 
   <!-- Driver & Vehicle -->
@@ -820,110 +834,15 @@ input[type=number] { -moz-appearance: textfield; }
   <!-- Stops -->
   <div class="rs-section">
     <div class="rs-section-title" data-i18n="rsStops">STOPS / PARADAS</div>
-    <div id="rsActiveStopBanner"></div>
     <div id="rsStopsList"></div>
-    <div class="rs-add-buttons">
-      <button class="rs-add-now" id="rsAddNowBtn" onclick="addStopNow()">+ AÑADIR (AHORA)</button>
-      <button class="rs-add-manual" data-i18n="rsAddManual" onclick="toggleManualStop()">+ MANUAL</button>
-    </div>
-    <div id="rsManualStopForm" class="hidden" style="margin-top:12px; padding:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px">
-      <div class="rs-row-2" style="margin-bottom:8px">
-        <input type="time" class="input-base" id="msArrived" data-i18n-placeholder="rsArrival" placeholder="Llegada">
-        <input type="time" class="input-base" id="msDeparted" data-i18n-placeholder="rsDeparture" placeholder="Salida">
-      </div>
-      <input type="text" class="input-base" id="msLocation" data-i18n-placeholder="rsLocation" placeholder="Ubicación / Endroit" style="margin-bottom:8px; font-size:12px">
-      <div class="rs-row-2" style="margin-bottom:8px">
-        <input type="text" class="input-base" id="msPallets" data-i18n-placeholder="rsPallets" placeholder="Palettes">
-        <input type="text" class="input-base" id="msInvoice" data-i18n-placeholder="rsInvoice" placeholder="N° factura">
-      </div>
-      <input type="text" class="input-base" id="msRemarks" data-i18n-placeholder="rsRemarks" placeholder="Remarques" style="margin-bottom:10px; font-size:11px">
-      <div style="display:flex; gap:6px">
-        <button class="manual-save" data-i18n="save" onclick="saveManualStop()">GUARDAR</button>
-        <button class="manual-cancel-btn" data-i18n="cancel" onclick="toggleManualStop()">CANCELAR</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Stop Editor (inline) -->
-  <div class="rs-section hidden" id="rsStopEditor">
-    <div class="rs-section-title" data-i18n="rsEditStop">EDITAR PARADA</div>
-    <div class="rs-row-2" style="margin-bottom:8px">
-      <div class="rs-field">
-        <div class="rs-field-label" data-i18n="rsArrival">LLEGADA</div>
-        <input type="time" class="input-base" id="esArrived">
-      </div>
-      <div class="rs-field">
-        <div class="rs-field-label" data-i18n="rsDeparture">SALIDA</div>
-        <input type="time" class="input-base" id="esDeparted">
-      </div>
-    </div>
-    <div class="rs-field">
-      <div class="rs-field-label" data-i18n="rsLocation">UBICACIÓN</div>
-      <input type="text" class="input-base" id="esLocation" style="font-size:12px">
-    </div>
-    <div class="rs-row-2" style="margin-bottom:8px">
-      <div class="rs-field">
-        <div class="rs-field-label" data-i18n="rsPallets">PALETTES</div>
-        <input type="text" class="input-base" id="esPallets">
-      </div>
-      <div class="rs-field">
-        <div class="rs-field-label" data-i18n="rsInvoice">N° FACTURA</div>
-        <input type="text" class="input-base" id="esInvoice">
-      </div>
-    </div>
-    <div class="rs-field">
-      <div class="rs-field-label" data-i18n="rsRemarks">REMARQUES</div>
-      <input type="text" class="input-base" id="esRemarks" style="font-size:11px">
-    </div>
-    <div style="display:flex; gap:6px; margin-top:10px">
-      <button class="manual-save" data-i18n="saveChanges" onclick="saveStopEdit()">GUARDAR CAMBIOS</button>
-      <button class="manual-cancel-btn" data-i18n="cancel" onclick="cancelStopEdit()">CANCELAR</button>
-    </div>
+    <button class="rs-add-now" onclick="addStopRow()" style="width:100%"><span data-i18n="addStopRow">+ Parada</span></button>
   </div>
 
   <!-- Breaks -->
   <div class="rs-section">
     <div class="rs-section-title" data-i18n="breaksSection">PAUSAS</div>
     <div id="rsBreaksList"></div>
-    <div class="rs-add-buttons">
-      <button class="rs-add-now" id="rsAddBreakBtn" onclick="addBreakNowRs()" style="background:rgba(255,180,0,0.1);border-color:rgba(255,180,0,0.3);color:rgba(255,200,80,0.95)">+ PAUSA AHORA</button>
-      <button class="rs-add-manual" onclick="toggleManualBreak()">+ MANUAL</button>
-    </div>
-    <div id="rsManualBreakForm" class="hidden" style="margin-top:12px; padding:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px">
-      <div class="rs-row-2" style="margin-bottom:8px">
-        <div class="rs-field">
-          <div class="rs-field-label" data-i18n="breakStart">INICIO PAUSA</div>
-          <input type="time" class="input-base" id="mbStart">
-        </div>
-        <div class="rs-field">
-          <div class="rs-field-label" data-i18n="breakEnd">FIN PAUSA</div>
-          <input type="time" class="input-base" id="mbEnd">
-        </div>
-      </div>
-      <div style="display:flex; gap:6px">
-        <button class="manual-save" data-i18n="save" onclick="saveManualBreak()">GUARDAR</button>
-        <button class="manual-cancel-btn" data-i18n="cancel" onclick="toggleManualBreak()">CANCELAR</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Break Editor -->
-  <div class="rs-section hidden" id="rsBreakEditor">
-    <div class="rs-section-title" data-i18n="editBreak">EDITAR PAUSA</div>
-    <div class="rs-row-2" style="margin-bottom:8px">
-      <div class="rs-field">
-        <div class="rs-field-label" data-i18n="breakStart">INICIO PAUSA</div>
-        <input type="time" class="input-base" id="ebStart">
-      </div>
-      <div class="rs-field">
-        <div class="rs-field-label" data-i18n="breakEnd">FIN PAUSA</div>
-        <input type="time" class="input-base" id="ebEnd">
-      </div>
-    </div>
-    <div style="display:flex; gap:6px; margin-top:10px">
-      <button class="manual-save" data-i18n="saveChanges" onclick="saveBreakEdit()">GUARDAR CAMBIOS</button>
-      <button class="manual-cancel-btn" data-i18n="cancel" onclick="cancelBreakEdit()">CANCELAR</button>
-    </div>
+    <button class="rs-add-now" onclick="addBreakRow()" style="width:100%;background:rgba(255,180,0,0.1);border-color:rgba(255,180,0,0.3);color:rgba(255,200,80,0.95)"><span data-i18n="addBreakRow">+ Pausa</span></button>
   </div>
 
   <!-- Export -->
@@ -1119,6 +1038,19 @@ const TRANSLATIONS = {
     grandTotal: 'TOTAL GENERAL',
     periodTotal: 'Total período',
     noServicePrice: 'Sin precio',
+    newDayBtn: '+ NUEVO DÍA / REGISTRO',
+    inProgress: 'DÍA EN PROGRESO',
+    rsDate: 'FECHA',
+    addStopRow: '+ Parada',
+    addBreakRow: '+ Pausa',
+    nowShort: 'ahora',
+    finishDay: '✓ TERMINAR DÍA (marcar salida ahora)',
+    reopenDay: 'Reabrir día',
+    locationPh: 'Ubicación',
+    palletsPh: 'Palettes',
+    invoicePh: 'N° factura',
+    remarksPh: 'Observaciones',
+    alertOneInProgress: 'Ya hay un día en progreso. Termínalo antes de reabrir otro.',
     // Confirms
     confirmUnder15: 'Menos de 15 min → 0h. ¿Guardar de todas formas?',
     confirmDeleteEntry: '¿Borrar este registro?',
@@ -1334,6 +1266,19 @@ const TRANSLATIONS = {
     grandTotal: 'GRAND TOTAL',
     periodTotal: 'Period total',
     noServicePrice: 'No price',
+    newDayBtn: '+ NEW DAY / RECORD',
+    inProgress: 'DAY IN PROGRESS',
+    rsDate: 'DATE',
+    addStopRow: '+ Stop',
+    addBreakRow: '+ Break',
+    nowShort: 'now',
+    finishDay: '✓ FINISH DAY (clock out now)',
+    reopenDay: 'Reopen day',
+    locationPh: 'Location',
+    palletsPh: 'Pallets',
+    invoicePh: 'Invoice #',
+    remarksPh: 'Remarks',
+    alertOneInProgress: 'There is already a day in progress. Finish it before reopening another.',
     confirmUnder15: 'Less than 15 min → 0h. Save anyway?',
     confirmDeleteEntry: 'Delete this entry?',
     confirmDeleteStop: 'Delete this stop?',
@@ -1547,6 +1492,19 @@ const TRANSLATIONS = {
     grandTotal: 'TOTAL GÉNÉRAL',
     periodTotal: 'Total période',
     noServicePrice: 'Sans prix',
+    newDayBtn: '+ NOUVELLE JOURNÉE',
+    inProgress: 'JOURNÉE EN COURS',
+    rsDate: 'DATE',
+    addStopRow: '+ Arrêt',
+    addBreakRow: '+ Pause',
+    nowShort: 'maint.',
+    finishDay: '✓ TERMINER (pointer sortie)',
+    reopenDay: 'Rouvrir journée',
+    locationPh: 'Endroit',
+    palletsPh: 'Palettes',
+    invoicePh: 'N° facture',
+    remarksPh: 'Remarques',
+    alertOneInProgress: 'Une journée est déjà en cours. Terminez-la avant d\'en rouvrir une autre.',
     confirmUnder15: 'Moins de 15 min → 0h. Enregistrer quand même ?',
     confirmDeleteEntry: 'Supprimer cette entrée ?',
     confirmDeleteStop: 'Supprimer cet arrêt ?',
@@ -1644,7 +1602,6 @@ function uses24h() {
 
 // ─── State ───
 let entries = [];
-let activeSession = null;
 let currentView = 'today';
 let editingId = null;
 let timerInterval = null;
@@ -1737,6 +1694,7 @@ function findServiceByName(name) {
 }
 // Compute gross pay for an entry. Returns null if no priced service linked.
 function computePay(entry, netHoursOverride) {
+  if (!entry.end) return null; // in-progress day has no final pay yet
   let svc = findService(entry.serviceId);
   if (!svc) svc = findServiceByName(entry.service);
   if (!svc) return null;
@@ -1753,7 +1711,17 @@ function formatMoney(amount) {
 // ─── Persistence ───
 function loadData() {
   try { entries = JSON.parse(localStorage.getItem(ENTRIES_KEY) || '[]'); } catch { entries = []; }
-  try { activeSession = JSON.parse(localStorage.getItem(ACTIVE_KEY)); } catch { activeSession = null; }
+  // Migrate legacy activeSession (v9 and earlier) into entries as an in-progress day
+  try {
+    const legacy = JSON.parse(localStorage.getItem(ACTIVE_KEY));
+    if (legacy && legacy.id) {
+      if (!entries.find(e => e.id === legacy.id)) {
+        legacy.end = null;
+        entries.unshift(legacy);
+      }
+      localStorage.removeItem(ACTIVE_KEY);
+    }
+  } catch {}
   try {
     const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
     if (s) settings = { ...settings, ...s };
@@ -1765,23 +1733,25 @@ function loadData() {
 }
 function saveData() {
   localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
-  localStorage.setItem(ACTIVE_KEY, JSON.stringify(activeSession));
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   localStorage.setItem(SERVICES_KEY, JSON.stringify(services));
 }
 
 // ─── Clock ───
-function toggleClock() {
-  if (activeSession) clockOut(); else clockIn();
+// ─── Day model: an in-progress day is an entry with end === null ───
+function getInProgressEntry() {
+  return entries.find(e => !e.end) || null;
 }
-function clockIn() {
-  const svc = document.getElementById('serviceInput').value.trim();
-  const note = document.getElementById('noteInput').value.trim();
-  activeSession = {
-    start: new Date().toISOString(),
+function createNewDay() {
+  // Only one in-progress day at a time
+  const existing = getInProgressEntry();
+  if (existing) { openRouteSheet(existing.id); return; }
+  const entry = {
     id: Date.now(),
-    service: svc,
-    note: note,
+    start: new Date().toISOString(),
+    end: null,
+    service: settings.default_service || '',
+    note: '',
     pauses: [],
     rs: {
       driver_name: settings.driver_name || '',
@@ -1789,35 +1759,18 @@ function clockIn() {
       truck_unit: settings.truck_unit || '',
       trailer: settings.trailer || '',
       plate: settings.plate || '',
-      km_start: '',
-      km_end: '',
-      stops: []
+      km_start: '', km_end: '', stops: []
     }
   };
+  entries.unshift(entry);
   saveData();
   startTimer();
+  openRouteSheet(entry.id);
   render();
 }
-function clockOut() {
-  if (!activeSession) return;
-  // If on break, end it at clock-out time
-  const openPause = getOpenPause(activeSession);
-  if (openPause) {
-    if (!confirm(t('confirmEndBreakAndClock'))) return;
-    openPause.end = new Date().toISOString();
-  }
-  const endISO = new Date().toISOString();
-  const rawH = calcHours(activeSession.start, endISO);
-  const net = computeNet(activeSession.start, endISO, activeSession.pauses);
-  const note = document.getElementById('noteInput').value.trim() || activeSession.note || '';
-  if (net === 0 && !confirm(t('confirmUnder15'))) {
-    activeSession = null; saveData(); stopTimer(); render(); return;
-  }
-  entries.unshift({ ...activeSession, end: endISO, rawHours: rawH, hours: net, note });
-  activeSession = null;
-  document.getElementById('serviceInput').value = '';
-  document.getElementById('noteInput').value = '';
-  saveData(); stopTimer(); render();
+function openInProgressDay() {
+  const e = getInProgressEntry();
+  if (e) openRouteSheet(e.id);
 }
 
 function startTimer() {
@@ -1826,67 +1779,26 @@ function startTimer() {
 }
 function stopTimer() { clearInterval(timerInterval); }
 
-// ─── Breaks (live) ───
-function startBreakNow() {
-  if (!activeSession) return;
-  if (getOpenPause(activeSession)) return; // already on break
-  if (!activeSession.pauses) activeSession.pauses = [];
-  activeSession.pauses.push({ id: Date.now(), start: new Date().toISOString(), end: null });
-  saveData();
-  render();
-}
-function endBreakNow() {
-  if (!activeSession) return;
-  const open = getOpenPause(activeSession);
-  if (!open) return;
-  open.end = new Date().toISOString();
-  saveData();
-  render();
-}
-function updatePauseUI() {
-  const pauseBtn = document.getElementById('pauseBtn');
-  const breakBanner = document.getElementById('breakBanner');
-  if (!activeSession) {
-    pauseBtn.classList.add('hidden');
-    breakBanner.classList.add('hidden');
-    return;
-  }
-  const open = getOpenPause(activeSession);
-  if (open) {
-    pauseBtn.classList.add('hidden');
-    breakBanner.classList.remove('hidden');
-    const mins = Math.floor(calcHours(open.start, new Date().toISOString()) * 60);
-    document.getElementById('breakBannerText').textContent = `${t('onBreakSince')} ${formatTime(open.start)}`;
-    document.getElementById('breakBannerTime').textContent = `${mins} min`;
-    document.getElementById('resumeBtn').textContent = t('resumeBtn');
-  } else {
-    pauseBtn.classList.remove('hidden');
-    breakBanner.classList.add('hidden');
-    pauseBtn.textContent = t('pauseBtn');
-  }
-}
-
 function updateLiveTimer() {
-  if (!activeSession) return;
-  const net = liveNetRaw(activeSession);
-  const rounded = roundTo15(net);
-  const openPause = getOpenPause(activeSession);
-  const clockTimeEl = document.getElementById('clockTime');
-  const clockRoundedEl = document.getElementById('clockRounded');
-  if (openPause) {
-    // On break: show break duration counting up, worked time frozen
-    const breakMin = Math.floor(calcHours(openPause.start, new Date().toISOString()) * 60);
-    clockTimeEl.textContent = formatHours(net);
-    clockRoundedEl.textContent = `${t('onBreakStatus')} • ${breakMin} min`;
-  } else {
-    clockTimeEl.textContent = formatHours(net);
-    clockRoundedEl.textContent = `≈ ${rounded.toFixed(2)}h ${t('roundedLabel')}`;
+  const ip = getInProgressEntry();
+  if (!ip) { stopTimer(); return; }
+  // Update the in-progress banner
+  const banner = document.getElementById('inProgressBanner');
+  if (banner && !banner.classList.contains('hidden')) {
+    const net = liveNetRaw(ip);
+    const openPause = getOpenPause(ip);
+    const timeEl = document.getElementById('ipTime');
+    if (openPause) {
+      const breakMin = Math.floor(calcHours(openPause.start, new Date().toISOString()) * 60);
+      timeEl.textContent = `${formatHours(net)} • ${t('onBreakStatus')} ${breakMin}m`;
+    } else {
+      timeEl.textContent = formatHours(net);
+    }
   }
   updateSummary();
-  updatePauseUI();
-  // If route sheet open for active session, update its total live
-  if (isCurrentRsActive()) {
-    updateTotalDisplay(activeSession);
+  // If the day sheet is open for the in-progress day, refresh its total
+  if (currentRsEntryId && getInProgressEntry() && currentRsEntryId === getInProgressEntry().id) {
+    updateTotalDisplay(ip);
   }
 }
 
@@ -1925,17 +1837,17 @@ function filterEntries() {
 }
 
 function updateSummary() {
-  // Grand total across all entries (+ active session)
-  let totalH = entries.reduce((s, e) => s + (e.hours || 0), 0);
+  let totalH = 0;
   let totalPay = 0;
   let anyPay = false;
-  entries.forEach(e => { const p = computePay(e); if (p !== null) { totalPay += p; anyPay = true; } });
-  if (activeSession) totalH += roundTo15(liveNetRaw(activeSession));
-  const labels = { today: t('totalToday'), week: t('totalWeek'), biweek: t('totalBiweek'), monthly: t('grandTotal') };
+  entries.forEach(e => {
+    if (!e.end) { totalH += roundTo15(liveNetRaw(e)); return; } // in-progress live
+    totalH += e.hours || 0;
+    const p = computePay(e); if (p !== null) { totalPay += p; anyPay = true; }
+  });
   document.getElementById('summaryLabel').textContent = t('grandTotal');
   document.getElementById('summaryTotal').textContent = formatHours(totalH);
   document.getElementById('summaryDecimal').textContent = totalH.toFixed(2) + 'h';
-  // Pay line
   const payEl = document.getElementById('summaryPay');
   if (payEl) {
     payEl.textContent = anyPay ? formatMoney(totalPay) : '';
@@ -1945,102 +1857,59 @@ function updateSummary() {
 
 // ─── Render ───
 function render() {
-  // Body class
-  document.body.className = activeSession ? 'clocked-in' : 'clocked-out';
+  const ip = getInProgressEntry();
+  document.body.className = ip ? 'clocked-in' : 'clocked-out';
 
   // Live badge
   const lb = document.getElementById('liveBadge');
-  lb.classList.toggle('active', !!activeSession);
+  lb.classList.toggle('active', !!ip);
 
-  // Clock button
-  const btn = document.getElementById('clockBtn');
-  const label = document.getElementById('clockLabel');
-  const time = document.getElementById('clockTime');
-  const since = document.getElementById('clockSince');
-  const rounded = document.getElementById('clockRounded');
-  const svcLabel = document.getElementById('clockServiceLabel');
-
-  if (activeSession) {
-    btn.className = 'clock-btn in';
-    label.textContent = t('clockOut');
-    time.style.fontSize = '26px';
-    since.textContent = t('sinceLabel') + ' ' + formatTime(activeSession.start);
-    since.classList.remove('hidden');
-    rounded.classList.remove('hidden');
-    if (activeSession.service) { svcLabel.textContent = activeSession.service; svcLabel.classList.remove('hidden'); }
-    else { svcLabel.classList.add('hidden'); }
-    document.getElementById('serviceInput').value = activeSession.service || '';
-    document.getElementById('serviceInput').readOnly = true;
-    document.getElementById('serviceInput').style.opacity = '0.5';
+  // In-progress banner + new-day button
+  const banner = document.getElementById('inProgressBanner');
+  const newDayBtn = document.getElementById('newDayBtn');
+  if (ip) {
+    banner.classList.remove('hidden');
+    const openPause = getOpenPause(ip);
+    document.getElementById('ipLabel').textContent = openPause ? t('onBreakStatus') : t('inProgress');
+    document.getElementById('ipService').textContent = ip.service || '';
+    document.getElementById('ipTime').textContent = formatHours(liveNetRaw(ip));
+    newDayBtn.classList.add('hidden');
     startTimer();
     updateLiveTimer();
   } else {
-    btn.className = 'clock-btn out';
-    label.textContent = t('clockIn');
-    time.textContent = '▶';
-    time.style.fontSize = '34px';
-    since.classList.add('hidden');
-    rounded.classList.add('hidden');
-    svcLabel.classList.add('hidden');
-    const si = document.getElementById('serviceInput');
-    si.readOnly = false;
-    si.style.opacity = '1';
-    // Auto-fill with default service if empty
-    if (!si.value && settings.default_service) si.value = settings.default_service;
+    banner.classList.add('hidden');
+    newDayBtn.classList.remove('hidden');
+    stopTimer();
   }
 
-  // Service chips
-  renderServiceChips('serviceChips', document.getElementById('serviceInput'));
-  renderServiceChips('manualServiceChips', document.getElementById('manualService'));
-
-  // Active route sheet button
-  const activeRsBtn = document.getElementById('activeRsBtn');
-  if (activeSession) {
-    const stopCount = activeSession.rs?.stops?.length || 0;
-    activeRsBtn.textContent = stopCount > 0
-      ? t('activeRsWithStops', { n: stopCount, label: stopCount === 1 ? t('stop1') : t('stopMany') })
-      : t('openActiveRs');
-    activeRsBtn.classList.remove('hidden');
-  } else {
-    activeRsBtn.classList.add('hidden');
-  }
-
-  // Pause UI
-  updatePauseUI();
-
-  // Summary
   updateSummary();
-
-  // Entries
   renderEntries();
 }
 
 function renderServiceChips(containerId, input) {
   const container = document.getElementById(containerId);
+  if (!container || !input) return;
   container.innerHTML = '';
-  if (activeSession && containerId === 'serviceChips') return;
-  // Registered services first (with $ indicator), then recent free-text not already registered
   const registeredNames = services.map(s => s.name.toLowerCase());
   services.forEach(s => {
     const chip = document.createElement('button');
     chip.className = 'chip' + (input.value === s.name ? ' selected' : '');
     chip.innerHTML = `${esc(s.name)} <span style="opacity:0.6">${s.type === 'fixed' ? formatMoney(s.flatRate) + t('perDay') : formatMoney((Number(s.rate)||0)) + t('perHour')}</span>`;
-    chip.onclick = () => { input.value = s.name; render(); };
+    chip.onclick = () => { input.value = s.name; if (input.dispatchEvent) input.dispatchEvent(new Event('input')); };
     container.appendChild(chip);
   });
   getRecentServices().filter(name => !registeredNames.includes(name.toLowerCase())).forEach(s => {
     const chip = document.createElement('button');
     chip.className = 'chip' + (input.value === s ? ' selected' : '');
     chip.textContent = s;
-    chip.onclick = () => { input.value = s; render(); };
+    chip.onclick = () => { input.value = s; if (input.dispatchEvent) input.dispatchEvent(new Event('input')); };
     container.appendChild(chip);
   });
 }
 function renderServicePickers() {
-  if (document.getElementById('serviceChips')) renderServiceChips('serviceChips', document.getElementById('serviceInput'));
-  if (document.getElementById('manualServiceChips') && !document.getElementById('manualForm').classList.contains('hidden')) {
-    renderServiceChips('manualServiceChips', document.getElementById('manualService'));
-  }
+  // Refresh service chips inside the day sheet if present
+  const rsChips = document.getElementById('rsServiceChips');
+  if (rsChips) renderServiceChips('rsServiceChips', document.getElementById('rsClient'));
 }
 
 function toggleGroup(key) {
@@ -2050,7 +1919,7 @@ function toggleGroup(key) {
 
 function renderEntries() {
   const container = document.getElementById('entriesContainer');
-  if (entries.length === 0 && !activeSession) {
+  if (entries.length === 0) {
     container.innerHTML = '<div class="empty">' + t('noEntries') + '</div>';
     return;
   }
@@ -2065,7 +1934,7 @@ function renderEntries() {
       order.push(gi.key);
     }
     groups[gi.key].entries.push(e);
-    groups[gi.key].totalH += e.hours || 0;
+    groups[gi.key].totalH += e.end ? (e.hours || 0) : roundTo15(liveNetRaw(e));
     const p = computePay(e);
     if (p !== null) { groups[gi.key].totalPay += p; groups[gi.key].anyPay = true; }
   });
@@ -2111,6 +1980,24 @@ function renderEntries() {
 }
 
 function renderEntry(e) {
+  const inProgress = !e.end;
+  if (inProgress) {
+    const stopCountIp = e.rs?.stops?.length || 0;
+    return `<div class="entry entry-inprogress" onclick="openRouteSheet(${e.id})">
+      <div class="entry-top">
+        <div class="entry-left">
+          ${e.service ? `<span class="badge-service">${esc(e.service)}</span>` : ''}
+          <span class="entry-time">${formatTime(e.start)} → <span style="color:rgba(120,230,160,0.9)">${t('inProgress')}</span></span>
+          ${stopCountIp > 0 ? `<span class="entry-rs-badge">📋 ${stopCountIp}</span>` : ''}
+        </div>
+        <div class="entry-right">
+          <span class="entry-hours" style="color:rgba(120,230,160,0.9)">${formatHours(liveNetRaw(e))}</span>
+          <button class="btn-icon" style="color:rgba(255,70,70,0.3)" onclick="event.stopPropagation();deleteEntry(${e.id})">✕</button>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--w20);margin-top:6px;text-align:right">${t('tapForRouteSheet')}</div>
+    </div>`;
+  }
   const crosses = dateKey(e.start) !== dateKey(e.end);
   const stopCount = e.rs?.stops?.length || 0;
   const breakCount = e.pauses?.length || 0;
@@ -2202,83 +2089,6 @@ function saveEdit(id) {
   saveData(); render();
 }
 
-// ─── Manual Entry ───
-function showManualForm() {
-  document.getElementById('manualToggle').classList.add('hidden');
-  document.getElementById('manualForm').classList.remove('hidden');
-  document.getElementById('manualStartDate').value = todayKey();
-  document.getElementById('manualEndDate').value = todayKey();
-  document.getElementById('manualPausesList').innerHTML = '';
-  document.getElementById('manualAddPauseBtn').textContent = t('addPauseRow');
-  renderServiceChips('manualServiceChips', document.getElementById('manualService'));
-}
-function hideManualForm() {
-  document.getElementById('manualToggle').classList.remove('hidden');
-  document.getElementById('manualForm').classList.add('hidden');
-  document.getElementById('manualService').value = '';
-  document.getElementById('manualNote').value = '';
-  document.getElementById('manualPausesList').innerHTML = '';
-}
-let manualPauseCounter = 0;
-function addManualPauseRow() {
-  manualPauseCounter++;
-  const id = 'mpr_' + manualPauseCounter;
-  const row = document.createElement('div');
-  row.className = 'manual-pause-row';
-  row.id = id;
-  row.innerHTML = `
-    <input type="time" class="input-base mpr-start">
-    <span class="pause-arrow">→</span>
-    <input type="time" class="input-base mpr-end">
-    <button class="manual-pause-del" onclick="document.getElementById('${id}').remove()">✕</button>
-  `;
-  document.getElementById('manualPausesList').appendChild(row);
-}
-function collectManualPauses(entryStartISO) {
-  const rows = document.querySelectorAll('#manualPausesList .manual-pause-row');
-  const date = dateKey(entryStartISO);
-  const pauses = [];
-  for (const row of rows) {
-    const sV = row.querySelector('.mpr-start').value;
-    const eV = row.querySelector('.mpr-end').value;
-    if (!sV && !eV) continue; // empty row, skip
-    if (!sV || !eV) return { error: true }; // incomplete
-    const startISO = new Date(`${date}T${sV}:00`).toISOString();
-    let endDate = date;
-    if (eV < sV) {
-      const next = new Date(entryStartISO); next.setDate(next.getDate() + 1);
-      endDate = dateKey(next);
-    }
-    const endISO = new Date(`${endDate}T${eV}:00`).toISOString();
-    if (new Date(endISO) <= new Date(startISO)) return { error: true };
-    pauses.push({ id: Date.now() + Math.floor(Math.random() * 10000), start: startISO, end: endISO });
-  }
-  return { pauses };
-}
-function saveManual() {
-  const sd = document.getElementById('manualStartDate').value;
-  const sh = document.getElementById('manualStartH').value.padStart(2,'0');
-  const sm = document.getElementById('manualStartM').value.padStart(2,'0');
-  const ed = document.getElementById('manualEndDate').value;
-  const eh = document.getElementById('manualEndH').value.padStart(2,'0');
-  const em = document.getElementById('manualEndM').value.padStart(2,'0');
-  const s = new Date(`${sd}T${sh}:${sm}:00`);
-  const e = new Date(`${ed}T${eh}:${em}:00`);
-  if (e <= s) { alert(t('alertEndAfterStartCross')); return; }
-  const collected = collectManualPauses(s.toISOString());
-  if (collected.error) { alert(t('alertPauseIncomplete')); return; }
-  const pauses = collected.pauses;
-  const rawH = calcHours(s, e);
-  entries.unshift({
-    id: Date.now(), start: s.toISOString(), end: e.toISOString(),
-    rawHours: rawH, hours: computeNet(s.toISOString(), e.toISOString(), pauses),
-    pauses: pauses,
-    service: document.getElementById('manualService').value.trim(),
-    note: document.getElementById('manualNote').value.trim(),
-    manual: true
-  });
-  saveData(); hideManualForm(); render();
-}
 
 // ─── Export ───
 function toggleExport() {
@@ -2460,7 +2270,6 @@ function backupData() {
     version: 3,
     date: new Date().toISOString(),
     entries: entries,
-    activeSession: activeSession,
     services: services,
     settings: settings
   };
@@ -2502,7 +2311,9 @@ function restoreData(event) {
         entries = backup.entries;
         document.getElementById('backupStatus').textContent = `✓ Restaurado: ${entries.length} registros`;
       }
-      if (backup.activeSession) activeSession = backup.activeSession;
+      if (backup.activeSession && backup.activeSession.id && !entries.find(e => e.id === backup.activeSession.id)) {
+        backup.activeSession.end = null; entries.unshift(backup.activeSession);
+      }
       if (Array.isArray(backup.services)) services = backup.services;
       if (backup.settings) settings = { ...settings, ...backup.settings };
       saveData();
@@ -2650,29 +2461,25 @@ function ensureRouteSheet(entry) {
 }
 
 function openActiveRouteSheet() {
-  if (!activeSession) return;
-  openRouteSheet(activeSession.id);
+  const ip = getInProgressEntry();
+  if (!ip) return;
+  openRouteSheet(ip.id);
 }
 
 function openRouteSheet(entryId) {
-  // Check active session first
-  let entry = null;
-  if (activeSession && activeSession.id === entryId) {
-    entry = activeSession;
-  } else {
-    entry = entries.find(e => e.id === entryId);
-  }
+  let entry = entries.find(e => e.id === entryId);
   if (!entry) return;
   currentRsEntryId = entryId;
   ensureRouteSheet(entry);
-  const isActive = isCurrentRsActive();
+  const inProgress = !entry.end;
 
-  document.getElementById('rsTopDate').textContent = formatDate(entry.start).toUpperCase() + (isActive ? ' • ' + t('inProgress') : '');
+  document.getElementById('rsTopDate').textContent = formatDate(entry.start).toUpperCase() + (inProgress ? ' • ' + t('inProgress') : '');
   document.getElementById('rsClient').value = entry.service || '';
+  document.getElementById('rsDate').value = dateKey(entry.start);
   document.getElementById('rsStartTime').value = formatTime24(entry.start);
-  document.getElementById('rsEndTime').value = isActive ? '' : formatTime24(entry.end);
-  document.getElementById('rsEndTime').disabled = isActive;
-  document.getElementById('rsEndTime').style.opacity = isActive ? '0.4' : '1';
+  document.getElementById('rsEndTime').value = inProgress ? '' : formatTime24(entry.end);
+  document.getElementById('rsEndTime').disabled = false;
+  document.getElementById('rsEndTime').style.opacity = '1';
   document.getElementById('rsDriverName').value = entry.rs.driver_name || '';
   document.getElementById('rsDriverNum').value = entry.rs.driver_num || '';
   document.getElementById('rsPlate').value = entry.rs.plate || '';
@@ -2681,28 +2488,94 @@ function openRouteSheet(entryId) {
   document.getElementById('rsKmStart').value = entry.rs.km_start || '';
   document.getElementById('rsKmEnd').value = entry.rs.km_end || '';
 
+  renderServiceChips('rsServiceChips', document.getElementById('rsClient'));
   updateTotalDisplay(entry);
   renderStops();
   renderBreaks();
+  renderFinishRow(entry);
 
   document.getElementById('rsOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  // Push state for back button
   history.pushState({ rs: true }, '');
+}
+
+function renderFinishRow(entry) {
+  const row = document.getElementById('rsFinishRow');
+  if (!row) return;
+  if (!entry.end) {
+    row.innerHTML = `<button class="rs-finish-btn" onclick="finishDayNow()">${t('finishDay')}</button>`;
+  } else {
+    row.innerHTML = `<button class="rs-reopen-btn" onclick="reopenDay()">↺ ${t('reopenDay')}</button>`;
+  }
+}
+
+function finishDayNow() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  // close any open pause
+  const open = getOpenPause(entry);
+  if (open) open.end = new Date().toISOString();
+  entry.end = new Date().toISOString();
+  entry.hours = computeNet(entry.start, entry.end, entry.pauses);
+  saveData();
+  document.getElementById('rsEndTime').value = formatTime24(entry.end);
+  updateTotalDisplay(entry);
+  renderFinishRow(entry);
+  renderBreaks();
+  stopTimer();
+}
+
+function reopenDay() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  // Only one in-progress day allowed
+  const other = entries.find(e => !e.end && e.id !== entry.id);
+  if (other) { alert(t('alertOneInProgress')); return; }
+  entry.end = null;
+  entry.hours = undefined;
+  saveData();
+  document.getElementById('rsEndTime').value = '';
+  updateTotalDisplay(entry);
+  renderFinishRow(entry);
+  startTimer();
+}
+
+// Fill a time input with current HH:MM and trigger its change handler
+function setNowField(fieldId) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  const now = new Date();
+  el.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  el.dispatchEvent(new Event('change'));
+}
+
+function updateRouteSheetDate() {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const newDate = document.getElementById('rsDate').value;
+  if (!newDate) return;
+  // Re-anchor start (and end if present) to the new date, keeping times
+  const startTime = formatTime24(entry.start);
+  entry.start = new Date(`${newDate}T${startTime}:00`).toISOString();
+  if (entry.end) {
+    const endTime = formatTime24(entry.end);
+    let end = new Date(`${newDate}T${endTime}:00`);
+    if (end <= new Date(entry.start)) end.setDate(end.getDate() + 1);
+    entry.end = end.toISOString();
+    entry.hours = computeNet(entry.start, entry.end, entry.pauses);
+  }
+  entry.edited = true;
+  saveData();
+  document.getElementById('rsTopDate').textContent = formatDate(entry.start).toUpperCase() + (!entry.end ? ' • ' + t('inProgress') : '');
+  updateTotalDisplay(entry);
+  render();
 }
 
 function closeRouteSheet() {
   document.getElementById('rsOverlay').classList.remove('open');
   document.body.style.overflow = '';
-  document.getElementById('rsStopEditor').classList.add('hidden');
-  document.getElementById('rsManualStopForm').classList.add('hidden');
-  document.getElementById('rsBreakEditor').classList.add('hidden');
-  document.getElementById('rsManualBreakForm').classList.add('hidden');
-  editingStopId = null;
-  editingBreakId = null;
   currentRsEntryId = null;
   render();
-  // Pop history state if we pushed one
   if (history.state && history.state.rs) history.back();
 }
 
@@ -2710,18 +2583,17 @@ window.addEventListener('popstate', () => {
   if (document.getElementById('rsOverlay').classList.contains('open')) {
     document.getElementById('rsOverlay').classList.remove('open');
     document.body.style.overflow = '';
-    editingStopId = null;
     currentRsEntryId = null;
     render();
   }
 });
 
 function getCurrentRsEntry() {
-  if (activeSession && activeSession.id === currentRsEntryId) return activeSession;
   return entries.find(e => e.id === currentRsEntryId);
 }
 function isCurrentRsActive() {
-  return activeSession && activeSession.id === currentRsEntryId;
+  const e = entries.find(x => x.id === currentRsEntryId);
+  return !!(e && !e.end);
 }
 
 function updateRouteSheet() {
@@ -2742,402 +2614,235 @@ function updateRouteSheetTimes() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
   const startStr = document.getElementById('rsStartTime').value;
-  if (!startStr) return;
+  const endStr = document.getElementById('rsEndTime').value;
   const sd = dateKey(entry.start);
-  const newStart = new Date(`${sd}T${startStr}:00`);
-
-  if (isCurrentRsActive()) {
-    // Only update start time; end is "now" automatically
-    entry.start = newStart.toISOString();
+  if (startStr) {
+    entry.start = new Date(`${sd}T${startStr}:00`).toISOString();
+  }
+  if (!endStr) {
+    // No end → in progress
+    entry.end = null;
+    entry.hours = undefined;
     saveData();
     updateTotalDisplay(entry);
+    renderFinishRow(entry);
+    startTimer();
     return;
   }
-  const endStr = document.getElementById('rsEndTime').value;
-  if (!endStr) return;
-  const ed = dateKey(entry.end);
-  const newEnd = new Date(`${ed}T${endStr}:00`);
-  if (newEnd <= newStart) { alert(t('alertEndTimeAfter')); return; }
-  entry.start = newStart.toISOString();
+  // End provided → finalize
+  let newEnd = new Date(`${sd}T${endStr}:00`);
+  if (newEnd <= new Date(entry.start)) newEnd.setDate(newEnd.getDate() + 1); // crossed midnight
   entry.end = newEnd.toISOString();
-  const raw = calcHours(entry.start, entry.end);
-  entry.rawHours = raw;
+  entry.rawHours = calcHours(entry.start, entry.end);
   entry.hours = computeNet(entry.start, entry.end, entry.pauses);
   entry.edited = true;
   saveData();
   updateTotalDisplay(entry);
+  renderFinishRow(entry);
+  stopTimer();
 }
 
 function updateTotalDisplay(entry) {
-  if (isCurrentRsActive()) {
+  if (!entry.end) {
     const net = liveNetRaw(entry);
     const rounded = roundTo15(net);
     document.getElementById('rsTotalDisplay').textContent = t('rsInProgressTotal', { hours: formatHours(net), decimal: rounded.toFixed(2) });
   } else {
     const pauseH = roundedPauseHours(entry.pauses);
+    const hrs = entry.hours || 0;
     if (pauseH > 0) {
       const gross = roundTo15(calcHours(entry.start, entry.end));
       document.getElementById('rsTotalDisplay').textContent =
-        `${t('netLabel')}: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h) • ${t('grossLabel')} ${gross.toFixed(2)}h − ${t('breaksTotalLabel')} ${pauseH.toFixed(2)}h`;
+        `${t('netLabel')}: ${formatHours(hrs)} (${hrs.toFixed(2)}h) • ${t('grossLabel')} ${gross.toFixed(2)}h − ${t('breaksTotalLabel')} ${pauseH.toFixed(2)}h`;
     } else {
-      document.getElementById('rsTotalDisplay').textContent = `${t('rsTotalLabel')}: ${formatHours(entry.hours)} (${entry.hours.toFixed(2)}h)`;
+      document.getElementById('rsTotalDisplay').textContent = `${t('rsTotalLabel')}: ${formatHours(hrs)} (${hrs.toFixed(2)}h)`;
     }
   }
 }
 
 // ─── Stops ───
+// ─── Helpers to build ISO from the day's date + HH:MM ───
+function buildDayISO(entry, timeStr, afterISO) {
+  if (!timeStr) return null;
+  const base = dateKey(entry.start);
+  let iso = new Date(`${base}T${timeStr}:00`);
+  // If this time is meant to come after a reference time and is earlier, assume next day
+  if (afterISO) {
+    const ref = new Date(afterISO);
+    if (iso < ref) { const n = new Date(iso); n.setDate(n.getDate()+1); iso = n; }
+  }
+  return iso.toISOString();
+}
+
+// ─── STOPS (unified inline-editable) ───
 function renderStops() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
-  const stops = entry.rs.stops || [];
-  // Sort by arrived time
-  stops.sort((a, b) => new Date(a.arrived) - new Date(b.arrived));
-
-  // Active stop banner (stop with arrived but no departed)
-  const active = stops.find(s => s.arrived && !s.departed);
-  const banner = document.getElementById('rsActiveStopBanner');
-  if (active) {
-    banner.innerHTML = `
-      <div class="rs-active-stop-banner">
-        <div>
-          <div class="rs-active-stop-banner-text">${t('rsAtStop')} — ${esc(active.location || '—')}</div>
-          <div style="font-size:10px;color:var(--w50);margin-top:2px">${t('rsAtStopFrom')} ${formatTime(active.arrived)}</div>
-        </div>
-        <button class="rs-stop-action-btn depart" onclick="markDepartureNow(${active.id})">${t('rsLeaveNow')}</button>
-      </div>
-    `;
-    document.getElementById('rsAddNowBtn').textContent = t('rsNewStopNow');
-  } else {
-    banner.innerHTML = '';
-    document.getElementById('rsAddNowBtn').textContent = t('rsArrivedNow');
-  }
-
+  const rs = ensureRouteSheet(entry);
+  if (!rs.stops) rs.stops = [];
   const list = document.getElementById('rsStopsList');
-  if (stops.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px 0;color:var(--w20);font-size:12px">' + t('rsNoStops') + '</div>';
+  if (rs.stops.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:14px 0;color:var(--w20);font-size:12px">${t('rsNoStops')}</div>`;
     return;
   }
-  list.innerHTML = stops.map((s, i) => renderStop(s, i)).join('');
-}
-
-function renderStop(stop, idx) {
-  const isActive = stop.arrived && !stop.departed;
-  const arrTime = stop.arrived ? formatTime(stop.arrived) : '—';
-  const depTime = stop.departed ? formatTime(stop.departed) : '—';
-  return `<div class="rs-stop ${isActive ? 'active' : ''}">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div style="flex:1">
-        <span class="rs-stop-num">${idx + 1}</span>
-        <span class="rs-stop-times">${arrTime}<span class="arrow">→</span>${depTime}</span>
+  list.innerHTML = rs.stops.map((s, i) => `
+    <div class="stop-card">
+      <div class="stop-card-head">
+        <span class="rs-stop-num">${i+1}</span>
+        <button class="stop-del" onclick="deleteStop(${s.id})">✕</button>
       </div>
-      <div style="display:flex;gap:4px">
-        <button class="rs-stop-action-btn" onclick="startEditStop(${stop.id})">✎</button>
-        <button class="rs-stop-action-btn danger" onclick="deleteStop(${stop.id})">✕</button>
+      <div class="rs-row-2" style="margin-bottom:6px">
+        <div class="rs-field" style="margin-bottom:0">
+          <div class="rs-field-label">${t('rsArrival')}</div>
+          <div class="time-with-now">
+            <input type="time" class="input-base" value="${s.arrived?formatTime24(s.arrived):''}" onchange="updateStopTime(${s.id},'arrived',this.value)">
+            <button class="now-btn" onclick="setStopNow(${s.id},'arrived')">●</button>
+          </div>
+        </div>
+        <div class="rs-field" style="margin-bottom:0">
+          <div class="rs-field-label">${t('rsDeparture')}</div>
+          <div class="time-with-now">
+            <input type="time" class="input-base" value="${s.departed?formatTime24(s.departed):''}" onchange="updateStopTime(${s.id},'departed',this.value)">
+            <button class="now-btn" onclick="setStopNow(${s.id},'departed')">●</button>
+          </div>
+        </div>
       </div>
+      <input type="text" class="input-base" placeholder="${t('locationPh')}" value="${esc(s.location||'')}" oninput="updateStopField(${s.id},'location',this.value)" style="margin-bottom:6px;font-size:12px">
+      <div class="rs-row-2" style="margin-bottom:6px">
+        <input type="text" class="input-base" placeholder="${t('palletsPh')}" value="${esc(s.pallets||'')}" oninput="updateStopField(${s.id},'pallets',this.value)">
+        <input type="text" class="input-base" placeholder="${t('invoicePh')}" value="${esc(s.invoice||'')}" oninput="updateStopField(${s.id},'invoice',this.value)">
+      </div>
+      <input type="text" class="input-base" placeholder="${t('remarksPh')}" value="${esc(s.remarks||'')}" oninput="updateStopField(${s.id},'remarks',this.value)" style="font-size:11px">
     </div>
-    ${stop.location ? `<div class="rs-stop-loc">${esc(stop.location)}</div>` : ''}
-    ${(stop.pallets || stop.invoice) ? `<div class="rs-stop-meta">
-      ${stop.pallets ? `<span>📦 ${esc(stop.pallets)} pal.</span>` : ''}
-      ${stop.invoice ? `<span># ${esc(stop.invoice)}</span>` : ''}
-    </div>` : ''}
-    ${stop.remarks ? `<div class="rs-stop-remarks">${esc(stop.remarks)}</div>` : ''}
-    ${isActive ? `<div class="rs-stop-actions"><button class="rs-stop-action-btn depart" onclick="markDepartureNow(${stop.id})">${t('rsMarkDepartureBtn')}</button></div>` : ''}
-  </div>`;
+  `).join('');
 }
-
-function addStopNow() {
+function addStopRow() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
-  // Close any open active stop first
-  const active = entry.rs.stops.find(s => s.arrived && !s.departed);
-  if (active && !confirm(t('confirmCloseActive'))) return;
-  if (active) active.departed = new Date().toISOString();
-  // Ask for location
-  const loc = prompt(t('rsLocationPrompt'), '');
-  entry.rs.stops.push({
-    id: Date.now(),
-    arrived: new Date().toISOString(),
-    departed: null,
-    location: loc || '',
-    pallets: '',
-    invoice: '',
-    remarks: ''
-  });
+  const rs = ensureRouteSheet(entry);
+  if (!rs.stops) rs.stops = [];
+  rs.stops.push({ id: Date.now() + Math.floor(Math.random()*1000), arrived: null, departed: null, location: '', pallets: '', invoice: '', remarks: '' });
   saveData();
   renderStops();
 }
-
-function markDepartureNow(stopId) {
-  const entry = getCurrentRsEntry();
-  if (!entry) return;
-  const stop = entry.rs.stops.find(s => s.id === stopId);
-  if (!stop) return;
-  stop.departed = new Date().toISOString();
-  saveData();
-  renderStops();
-}
-
 function deleteStop(stopId) {
-  if (!confirm(t('confirmDeleteStop'))) return;
   const entry = getCurrentRsEntry();
   if (!entry) return;
   entry.rs.stops = entry.rs.stops.filter(s => s.id !== stopId);
   saveData();
   renderStops();
 }
-
-function toggleManualStop() {
-  const form = document.getElementById('rsManualStopForm');
-  form.classList.toggle('hidden');
-  if (!form.classList.contains('hidden')) {
-    // Clear fields
-    ['msArrived','msDeparted','msLocation','msPallets','msInvoice','msRemarks'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-  }
-}
-
-function saveManualStop() {
-  const entry = getCurrentRsEntry();
-  if (!entry) return;
-  const arr = document.getElementById('msArrived').value;
-  const dep = document.getElementById('msDeparted').value;
-  if (!arr) { alert(t('alertNeedArrival')); return; }
-  const date = dateKey(entry.start);
-  const arrivedISO = new Date(`${date}T${arr}:00`).toISOString();
-  let departedISO = null;
-  if (dep) {
-    let depDate = date;
-    // If departed time < arrived time, assume next day
-    if (dep < arr) {
-      const next = new Date(entry.start);
-      next.setDate(next.getDate() + 1);
-      depDate = dateKey(next);
-    }
-    departedISO = new Date(`${depDate}T${dep}:00`).toISOString();
-  }
-  entry.rs.stops.push({
-    id: Date.now(),
-    arrived: arrivedISO,
-    departed: departedISO,
-    location: document.getElementById('msLocation').value.trim(),
-    pallets: document.getElementById('msPallets').value.trim(),
-    invoice: document.getElementById('msInvoice').value.trim(),
-    remarks: document.getElementById('msRemarks').value.trim()
-  });
-  saveData();
-  toggleManualStop();
-  renderStops();
-}
-
-function startEditStop(stopId) {
+function updateStopField(stopId, field, value) {
   const entry = getCurrentRsEntry();
   if (!entry) return;
   const stop = entry.rs.stops.find(s => s.id === stopId);
   if (!stop) return;
-  editingStopId = stopId;
-  document.getElementById('esArrived').value = stop.arrived ? formatTime24(stop.arrived) : '';
-  document.getElementById('esDeparted').value = stop.departed ? formatTime24(stop.departed) : '';
-  document.getElementById('esLocation').value = stop.location || '';
-  document.getElementById('esPallets').value = stop.pallets || '';
-  document.getElementById('esInvoice').value = stop.invoice || '';
-  document.getElementById('esRemarks').value = stop.remarks || '';
-  document.getElementById('rsStopEditor').classList.remove('hidden');
-  document.getElementById('rsStopEditor').scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function cancelStopEdit() {
-  editingStopId = null;
-  document.getElementById('rsStopEditor').classList.add('hidden');
-}
-
-function saveStopEdit() {
-  const entry = getCurrentRsEntry();
-  if (!entry || !editingStopId) return;
-  const stop = entry.rs.stops.find(s => s.id === editingStopId);
-  if (!stop) return;
-  const date = dateKey(entry.start);
-  const arr = document.getElementById('esArrived').value;
-  const dep = document.getElementById('esDeparted').value;
-  if (arr) stop.arrived = new Date(`${date}T${arr}:00`).toISOString();
-  if (dep) {
-    let depDate = date;
-    if (arr && dep < arr) {
-      const next = new Date(entry.start); next.setDate(next.getDate() + 1);
-      depDate = dateKey(next);
-    }
-    stop.departed = new Date(`${depDate}T${dep}:00`).toISOString();
-  } else {
-    stop.departed = null;
-  }
-  stop.location = document.getElementById('esLocation').value.trim();
-  stop.pallets = document.getElementById('esPallets').value.trim();
-  stop.invoice = document.getElementById('esInvoice').value.trim();
-  stop.remarks = document.getElementById('esRemarks').value.trim();
+  stop[field] = value;
   saveData();
-  cancelStopEdit();
+}
+function updateStopTime(stopId, field, timeStr) {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const stop = entry.rs.stops.find(s => s.id === stopId);
+  if (!stop) return;
+  if (!timeStr) { stop[field] = null; saveData(); return; }
+  // departure builds after arrival; arrival builds after day start
+  const after = (field === 'departed' && stop.arrived) ? stop.arrived : entry.start;
+  stop[field] = buildDayISO(entry, timeStr, after);
+  saveData();
+}
+function setStopNow(stopId, field) {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const stop = entry.rs.stops.find(s => s.id === stopId);
+  if (!stop) return;
+  stop[field] = new Date().toISOString();
+  saveData();
   renderStops();
 }
 
-// ─── Breaks (route sheet) ───
+// ─── recalc net ───
 function recalcEntryNet(entry) {
-  if (isCurrentRsActive()) {
-    updateTotalDisplay(entry);
-    return;
-  }
+  if (!entry.end) { updateTotalDisplay(entry); return; } // in-progress, no fixed net yet
   entry.hours = computeNet(entry.start, entry.end, entry.pauses);
   updateTotalDisplay(entry);
 }
 
+// ─── BREAKS (unified inline-editable) ───
 function renderBreaks() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
   if (!entry.pauses) entry.pauses = [];
-  const pauses = [...entry.pauses].sort((a, b) => new Date(a.start) - new Date(b.start));
   const list = document.getElementById('rsBreaksList');
-
-  // Update add-break button text depending on open break
-  const open = getOpenPause(entry);
-  const addBtn = document.getElementById('rsAddBreakBtn');
-  if (addBtn) addBtn.textContent = open ? t('endBreakNow') : t('addBreakNow');
-
-  if (pauses.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--w20);font-size:12px">${t('noBreaks')}</div>`;
+  if (entry.pauses.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:14px 0;color:var(--w20);font-size:12px">${t('noBreaks')}</div>`;
     return;
   }
-  list.innerHTML = pauses.map((p, i) => {
-    const isOpen = p.start && !p.end;
-    const durMin = p.end ? Math.round(calcHours(p.start, p.end) * 60) : Math.floor(calcHours(p.start, new Date().toISOString()) * 60);
-    const roundedH = p.end ? roundTo15(calcHours(p.start, p.end)) : 0;
-    return `<div class="rs-stop ${isOpen ? 'active' : ''}" style="${isOpen ? 'border-color:rgba(255,180,0,0.3);background:rgba(255,180,0,0.05)' : ''}">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="flex:1">
-          <span class="rs-stop-num" style="background:rgba(255,180,0,0.15);color:rgba(255,200,80,0.9)">⏸</span>
-          <span class="rs-stop-times">${formatTime(p.start)}<span class="arrow">→</span>${p.end ? formatTime(p.end) : '...'}</span>
-          <span style="font-size:11px;color:var(--w40);margin-left:8px">${durMin} min${p.end ? ` (≈ ${roundedH.toFixed(2)}h)` : ''}</span>
+  const sorted = [...entry.pauses].sort((a,b)=> new Date(a.start||0)-new Date(b.start||0));
+  list.innerHTML = sorted.map((p) => {
+    const durMin = (p.start && p.end) ? Math.round(calcHours(p.start,p.end)*60) : 0;
+    const roundedH = (p.start && p.end) ? roundTo15(calcHours(p.start,p.end)) : 0;
+    return `<div class="stop-card" style="border-color:rgba(255,180,0,0.18)">
+      <div class="stop-card-head">
+        <span class="rs-stop-num" style="background:rgba(255,180,0,0.15);color:rgba(255,200,80,0.9)">⏸</span>
+        <span style="font-size:11px;color:var(--w40)">${p.start&&p.end?`${durMin} min (≈ ${roundedH.toFixed(2)}h)`:'—'}</span>
+        <button class="stop-del" onclick="deleteBreak(${p.id})">✕</button>
+      </div>
+      <div class="rs-row-2" style="margin-bottom:0">
+        <div class="rs-field" style="margin-bottom:0">
+          <div class="rs-field-label">${t('breakStart')}</div>
+          <div class="time-with-now">
+            <input type="time" class="input-base" value="${p.start?formatTime24(p.start):''}" onchange="updateBreakTime(${p.id},'start',this.value)">
+            <button class="now-btn" onclick="setBreakNow(${p.id},'start')">●</button>
+          </div>
         </div>
-        <div style="display:flex;gap:4px">
-          ${isOpen ? `<button class="rs-stop-action-btn depart" onclick="endOpenBreakRs(${p.id})">${t('rsLeaveNow')}</button>` : ''}
-          <button class="rs-stop-action-btn" onclick="startEditBreak(${p.id})">✎</button>
-          <button class="rs-stop-action-btn danger" onclick="deleteBreak(${p.id})">✕</button>
+        <div class="rs-field" style="margin-bottom:0">
+          <div class="rs-field-label">${t('breakEnd')}</div>
+          <div class="time-with-now">
+            <input type="time" class="input-base" value="${p.end?formatTime24(p.end):''}" onchange="updateBreakTime(${p.id},'end',this.value)">
+            <button class="now-btn" onclick="setBreakNow(${p.id},'end')">●</button>
+          </div>
         </div>
       </div>
     </div>`;
   }).join('');
 }
-
-function addBreakNowRs() {
+function addBreakRow() {
   const entry = getCurrentRsEntry();
   if (!entry) return;
   if (!entry.pauses) entry.pauses = [];
-  const open = getOpenPause(entry);
-  if (open) {
-    // End the open break
-    open.end = new Date().toISOString();
-  } else {
-    entry.pauses.push({ id: Date.now(), start: new Date().toISOString(), end: null });
-  }
+  entry.pauses.push({ id: Date.now() + Math.floor(Math.random()*1000), start: null, end: null });
   saveData();
-  recalcEntryNet(entry);
   renderBreaks();
-  if (activeSession && entry.id === activeSession.id) updatePauseUI();
 }
-
-function endOpenBreakRs(breakId) {
-  const entry = getCurrentRsEntry();
-  if (!entry) return;
-  const p = entry.pauses.find(x => x.id === breakId);
-  if (!p) return;
-  p.end = new Date().toISOString();
-  saveData();
-  recalcEntryNet(entry);
-  renderBreaks();
-  if (activeSession && entry.id === activeSession.id) updatePauseUI();
-}
-
 function deleteBreak(breakId) {
-  if (!confirm(t('confirmDeleteBreak'))) return;
   const entry = getCurrentRsEntry();
   if (!entry) return;
-  entry.pauses = entry.pauses.filter(x => x.id !== breakId);
+  entry.pauses = entry.pauses.filter(p => p.id !== breakId);
   saveData();
   recalcEntryNet(entry);
   renderBreaks();
-  if (activeSession && entry.id === activeSession.id) updatePauseUI();
 }
-
-function toggleManualBreak() {
-  const form = document.getElementById('rsManualBreakForm');
-  form.classList.toggle('hidden');
-  if (!form.classList.contains('hidden')) {
-    document.getElementById('mbStart').value = '';
-    document.getElementById('mbEnd').value = '';
-  }
-}
-
-function saveManualBreak() {
-  const entry = getCurrentRsEntry();
-  if (!entry) return;
-  const startV = document.getElementById('mbStart').value;
-  const endV = document.getElementById('mbEnd').value;
-  if (!startV || !endV) { alert(t('alertNeedArrival')); return; }
-  const date = dateKey(entry.start);
-  const startISO = new Date(`${date}T${startV}:00`).toISOString();
-  let endDate = date;
-  if (endV < startV) {
-    const next = new Date(entry.start); next.setDate(next.getDate() + 1);
-    endDate = dateKey(next);
-  }
-  const endISO = new Date(`${endDate}T${endV}:00`).toISOString();
-  if (new Date(endISO) <= new Date(startISO)) { alert(t('alertBreakAfterStart')); return; }
-  if (!entry.pauses) entry.pauses = [];
-  entry.pauses.push({ id: Date.now(), start: startISO, end: endISO });
-  saveData();
-  recalcEntryNet(entry);
-  toggleManualBreak();
-  renderBreaks();
-}
-
-function startEditBreak(breakId) {
+function updateBreakTime(breakId, field, timeStr) {
   const entry = getCurrentRsEntry();
   if (!entry) return;
   const p = entry.pauses.find(x => x.id === breakId);
   if (!p) return;
-  editingBreakId = breakId;
-  document.getElementById('ebStart').value = p.start ? formatTime24(p.start) : '';
-  document.getElementById('ebEnd').value = p.end ? formatTime24(p.end) : '';
-  document.getElementById('rsBreakEditor').classList.remove('hidden');
-  document.getElementById('rsBreakEditor').scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function cancelBreakEdit() {
-  editingBreakId = null;
-  document.getElementById('rsBreakEditor').classList.add('hidden');
-}
-
-function saveBreakEdit() {
-  const entry = getCurrentRsEntry();
-  if (!entry || !editingBreakId) return;
-  const p = entry.pauses.find(x => x.id === editingBreakId);
-  if (!p) return;
-  const date = dateKey(entry.start);
-  const startV = document.getElementById('ebStart').value;
-  const endV = document.getElementById('ebEnd').value;
-  if (startV) p.start = new Date(`${date}T${startV}:00`).toISOString();
-  if (endV) {
-    let endDate = date;
-    if (startV && endV < startV) {
-      const next = new Date(entry.start); next.setDate(next.getDate() + 1);
-      endDate = dateKey(next);
-    }
-    p.end = new Date(`${endDate}T${endV}:00`).toISOString();
-  } else {
-    p.end = null;
-  }
-  if (p.end && new Date(p.end) <= new Date(p.start)) { alert(t('alertBreakAfterStart')); return; }
+  if (!timeStr) { p[field] = null; saveData(); recalcEntryNet(entry); renderBreaks(); return; }
+  const after = (field === 'end' && p.start) ? p.start : entry.start;
+  p[field] = buildDayISO(entry, timeStr, after);
   saveData();
   recalcEntryNet(entry);
-  cancelBreakEdit();
+  renderBreaks();
+}
+function setBreakNow(breakId, field) {
+  const entry = getCurrentRsEntry();
+  if (!entry) return;
+  const p = entry.pauses.find(x => x.id === breakId);
+  if (!p) return;
+  p[field] = new Date().toISOString();
+  saveData();
+  recalcEntryNet(entry);
   renderBreaks();
 }
 

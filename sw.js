@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mishoras-v9';
+const CACHE_NAME = 'mishoras-v10';
 const BASE = '/Time-Tracker-Hesman-Transport/';
 const ASSETS = [
   BASE,
